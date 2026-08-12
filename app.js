@@ -24866,7 +24866,14 @@
     next.due = now + next.stability * DAY;
     return next;
   }
-  var isDue = (c) => c.srs.due <= Date.now();
+  var ROLLOVER_HOUR = 4;
+  function nextRollover(ts) {
+    const d = new Date(ts);
+    d.setHours(ROLLOVER_HOUR, 0, 0, 0);
+    if (d.getTime() <= ts) d.setDate(d.getDate() + 1);
+    return d.getTime();
+  }
+  var isDue = (c) => c.srs.due < nextRollover(Date.now());
   var dueCount = (d) => d.cards.filter(isDue).length;
   var mastery = (d) => d.cards.length ? d.cards.reduce((s, c) => s + Math.min(c.srs.stability / 21, 1), 0) / d.cards.length : 0;
   function humanGap(ms) {
@@ -24927,6 +24934,50 @@
   var TABLE_HEAD = /^(term|word|front|question|q|key|concept|vocab|vocabulary)$/i;
   var cells = (row) => row.trim().replace(/^\||\|$/g, "").split("|").map((c) => c.trim());
   var isRule = (row) => /^\s*\|?[\s|:-]*-[\s|:-]*\|?\s*$/.test(row);
+  function parseDelimited(raw, delim) {
+    const text = (raw || "").replace(/\r\n?/g, "\n");
+    const rows = [];
+    let row = [], field = "", inQuotes = false;
+    for (let i = 0; i < text.length; i++) {
+      const c = text[i];
+      if (inQuotes) {
+        if (c === '"') {
+          if (text[i + 1] === '"') {
+            field += '"';
+            i++;
+          } else inQuotes = false;
+        } else field += c;
+      } else if (c === '"') {
+        inQuotes = true;
+      } else if (c === delim) {
+        row.push(field);
+        field = "";
+      } else if (c === "\n") {
+        row.push(field);
+        rows.push(row);
+        row = [];
+        field = "";
+      } else {
+        field += c;
+      }
+    }
+    if (field.length || row.length) {
+      row.push(field);
+      rows.push(row);
+    }
+    return rows.filter((r) => r.some((c) => c.trim()));
+  }
+  function cardsFromDelimited(rows) {
+    if (!rows.length) return [];
+    const start = rows[0].length >= 2 && TABLE_HEAD.test((rows[0][0] || "").trim()) ? 1 : 0;
+    const cards = [];
+    for (let i = start; i < rows.length && cards.length < MAX_IMPORT; i++) {
+      const term = clean(rows[i][0] || "");
+      const def = clean(rows[i].slice(1).join(" \u2014 "));
+      if (term && def) cards.push([term, def]);
+    }
+    return cards;
+  }
   function parseCardText(raw, fallbackTitle) {
     let text = (raw || "").replace(/\r\n?/g, "\n");
     let title = "";
@@ -25094,7 +25145,9 @@ ${c.def}
             className: "ss-face",
             onClick: onFlip,
             role: "button",
-            tabIndex: 0,
+            tabIndex: flipped ? -1 : 0,
+            "aria-hidden": flipped,
+            inert: flipped,
             onKeyDown: (e) => {
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
@@ -25108,11 +25161,28 @@ ${c.def}
             ]
           }
         ),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-face back", onClick: onFlip, "aria-hidden": !flipped, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-face-rule", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "ss-face-lab", children: "Definition" }) }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-face-mid", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: back }) }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-hint", children: "click to flip back" })
-        ] })
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+          "div",
+          {
+            className: "ss-face back",
+            onClick: onFlip,
+            role: "button",
+            tabIndex: flipped ? 0 : -1,
+            "aria-hidden": !flipped,
+            inert: !flipped,
+            onKeyDown: (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onFlip();
+              }
+            },
+            children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-face-rule", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "ss-face-lab", children: "Definition" }) }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-face-mid", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: back }) }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-hint", children: "click to flip back" })
+            ]
+          }
+        )
       ] }) })
     ] });
   }
@@ -25646,8 +25716,17 @@ Photosynthesis              <- definition list
           usable.map(async (f) => {
             const raw = await f.text();
             const base = f.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ").trim();
-            const parsed = parseCardText(raw, base);
-            return { id: uid(), name: f.name, title: parsed.title || base, cards: parsed.cards };
+            const ext = (f.name.match(/\.([^.]+)$/) || [])[1]?.toLowerCase();
+            let cards, title;
+            if (ext === "csv" || ext === "tsv") {
+              cards = cardsFromDelimited(parseDelimited(raw, ext === "csv" ? "," : "	"));
+              title = base;
+            } else {
+              const parsed = parseCardText(raw, base);
+              cards = parsed.cards;
+              title = parsed.title || base;
+            }
+            return { id: uid(), name: f.name, title, cards };
           })
         );
         const empty = read.filter((r) => !r.cards.length).map((r) => r.name);
@@ -25851,7 +25930,13 @@ Photosynthesis              <- definition list
           setBests(data.bests || {});
           setStatus("ready");
         } catch {
-          setDecks(SEED);
+          try {
+            const local = JSON.parse(localStorage.getItem("studystack:backup"));
+            setDecks(local.decks || SEED);
+            setBests(local.bests || {});
+          } catch {
+            setDecks(SEED);
+          }
           setStatus("ready");
         }
       })();
@@ -25862,6 +25947,10 @@ Photosynthesis              <- definition list
         first.current = false;
       }
       const t = setTimeout(async () => {
+        try {
+          localStorage.setItem("studystack:backup", JSON.stringify({ decks, bests }));
+        } catch {
+        }
         try {
           const r = await fetch("/api/decks", {
             method: "POST",
@@ -25884,6 +25973,15 @@ Photosynthesis              <- definition list
         cards: d.cards.map((c) => c.id === cardId ? { ...c, srs: grade(c.srs, g) } : c)
       })));
     }, []);
+    const exportAll = () => {
+      const blob = new Blob([JSON.stringify({ decks, bests }, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `studystack-export-${(/* @__PURE__ */ new Date()).toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    };
     const deck = decks && view.deckId ? decks.find((d) => d.id === view.deckId) : null;
     if (status === "loading") {
       return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: `ss${dark ? " dark" : ""}`, children: [
@@ -25949,12 +26047,14 @@ Photosynthesis              <- definition list
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { className: "ss-note", style: { marginTop: 34 }, children: [
             "Decks persist between sessions.",
             " ",
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-link", onClick: exportAll, children: "Export all data" }),
+            " \xB7 ",
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-link", onClick: () => {
-              if (confirm("Erase all decks and restore the two samples?")) {
-                setDecks(SEED);
+              if (confirm("Erase all decks? This can't be undone.")) {
+                setDecks([]);
                 setBests({});
               }
-            }, children: "Reset to sample data" })
+            }, children: "Erase all decks" })
           ] })
         ] }) : null,
         view.screen === "deck" && deck ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(

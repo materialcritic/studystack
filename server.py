@@ -8,6 +8,34 @@ import os
 import sys
 
 DATA_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "decks.json")
+BACKUP_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".backups")
+BACKUP_COUNT = 10
+
+
+def _rotate_backups():
+    if not os.path.exists(DATA_FILE):
+        return
+    os.makedirs(BACKUP_DIR, exist_ok=True)
+    for i in range(BACKUP_COUNT, 1, -1):
+        src = os.path.join(BACKUP_DIR, f"decks.json.{i - 1}")
+        dst = os.path.join(BACKUP_DIR, f"decks.json.{i}")
+        if os.path.exists(src):
+            os.replace(src, dst)
+    with open(DATA_FILE, "rb") as f:
+        current = f.read()
+    with open(os.path.join(BACKUP_DIR, "decks.json.1"), "wb") as f:
+        f.write(current)
+
+
+def _write_decks(data):
+    # Snapshot the previous version before touching anything, then write
+    # atomically (tmp file + os.replace) so a crash mid-write can't truncate
+    # decks.json into an unparseable state.
+    _rotate_backups()
+    tmp_path = DATA_FILE + ".tmp"
+    with open(tmp_path, "w") as f:
+        json.dump(data, f)
+    os.replace(tmp_path, DATA_FILE)
 
 
 class Handler(http.server.SimpleHTTPRequestHandler):
@@ -27,8 +55,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 self.send_response(400)
                 self.end_headers()
                 return
-            with open(DATA_FILE, "w") as f:
-                json.dump(data, f)
+            _write_decks(data)
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
             self.end_headers()

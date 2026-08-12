@@ -394,7 +394,16 @@ function grade(srs, g) {
   return next;
 }
 
-const isDue = (c) => c.srs.due <= Date.now();
+// A card due any time before the *next* rollover counts as due today —
+// otherwise a card due at 23:10 never shows up in an earlier session.
+const ROLLOVER_HOUR = 4;
+function nextRollover(ts) {
+  const d = new Date(ts);
+  d.setHours(ROLLOVER_HOUR, 0, 0, 0);
+  if (d.getTime() <= ts) d.setDate(d.getDate() + 1);
+  return d.getTime();
+}
+const isDue = (c) => c.srs.due < nextRollover(Date.now());
 const dueCount = (d) => d.cards.filter(isDue).length;
 const mastery = (d) =>
   d.cards.length ? d.cards.reduce((s, c) => s + Math.min(c.srs.stability / 21, 1), 0) / d.cards.length : 0;
@@ -497,6 +506,46 @@ const looseCard = (l) => l.length < 90 && !!splitPair(l);
 const TABLE_HEAD = /^(term|word|front|question|q|key|concept|vocab|vocabulary)$/i;
 const cells = (row) => row.trim().replace(/^\||\|$/g, "").split("|").map((c) => c.trim());
 const isRule = (row) => /^\s*\|?[\s|:-]*-[\s|:-]*\|?\s*$/.test(row);
+
+// RFC4180-ish delimited parsing (handles quoted fields containing the
+// delimiter, newlines, or escaped quotes) — markdown-oriented parseCardText
+// can't handle a comma-separated file since commas appear inside prose defs.
+function parseDelimited(raw, delim) {
+  const text = (raw || "").replace(/\r\n?/g, "\n");
+  const rows = [];
+  let row = [], field = "", inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQuotes) {
+      if (c === '"') {
+        if (text[i + 1] === '"') { field += '"'; i++; }
+        else inQuotes = false;
+      } else field += c;
+    } else if (c === '"') {
+      inQuotes = true;
+    } else if (c === delim) {
+      row.push(field); field = "";
+    } else if (c === "\n") {
+      row.push(field); rows.push(row); row = []; field = "";
+    } else {
+      field += c;
+    }
+  }
+  if (field.length || row.length) { row.push(field); rows.push(row); }
+  return rows.filter((r) => r.some((c) => c.trim()));
+}
+
+function cardsFromDelimited(rows) {
+  if (!rows.length) return [];
+  const start = rows[0].length >= 2 && TABLE_HEAD.test((rows[0][0] || "").trim()) ? 1 : 0;
+  const cards = [];
+  for (let i = start; i < rows.length && cards.length < MAX_IMPORT; i++) {
+    const term = clean(rows[i][0] || "");
+    const def = clean(rows[i].slice(1).join(" — "));
+    if (term && def) cards.push([term, def]);
+  }
+  return cards;
+}
 
 function parseCardText(raw, fallbackTitle) {
   let text = (raw || "").replace(/\r\n?/g, "\n");
@@ -638,13 +687,16 @@ function Card({ front, back, flipped, onFlip, remaining = 0, label = "Term" }) {
       ))}
       <div className={`ss-flip${flipped ? " on" : ""}`}>
         <div className="ss-flip-in">
-          <div className="ss-face" onClick={onFlip} role="button" tabIndex={0}
+          <div className="ss-face" onClick={onFlip} role="button" tabIndex={flipped ? -1 : 0}
+            aria-hidden={flipped} inert={flipped}
             onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onFlip(); } }}>
             <div className="ss-face-rule"><span className="ss-face-lab">{label}</span></div>
             <div className="ss-face-mid"><p>{front}</p></div>
             <div className="ss-hint">click or press space to flip</div>
           </div>
-          <div className="ss-face back" onClick={onFlip} aria-hidden={!flipped}>
+          <div className="ss-face back" onClick={onFlip} role="button" tabIndex={flipped ? 0 : -1}
+            aria-hidden={!flipped} inert={!flipped}
+            onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onFlip(); } }}>
             <div className="ss-face-rule"><span className="ss-face-lab">Definition</span></div>
             <div className="ss-face-mid"><p>{back}</p></div>
             <div className="ss-hint">click to flip back</div>
@@ -1157,8 +1209,17 @@ function ImportSheet({ deck, onClose, onAppend, onCreate }) {
         usable.map(async (f) => {
           const raw = await f.text();
           const base = f.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ").trim();
-          const parsed = parseCardText(raw, base);
-          return { id: uid(), name: f.name, title: parsed.title || base, cards: parsed.cards };
+          const ext = (f.name.match(/\.([^.]+)$/) || [])[1]?.toLowerCase();
+          let cards, title;
+          if (ext === "csv" || ext === "tsv") {
+            cards = cardsFromDelimited(parseDelimited(raw, ext === "csv" ? "," : "\t"));
+            title = base;
+          } else {
+            const parsed = parseCardText(raw, base);
+            cards = parsed.cards;
+            title = parsed.title || base;
+          }
+          return { id: uid(), name: f.name, title, cards };
         })
       );
       const empty = read.filter((r) => !r.cards.length).map((r) => r.name);
@@ -1310,7 +1371,14 @@ export default function StudyStack() {
         setBests(data.bests || {});
         setStatus("ready");
       } catch {
-        setDecks(SEED);
+        // Server unreachable — fall back to the last local mirror before giving up to an empty deck list.
+        try {
+          const local = JSON.parse(localStorage.getItem("studystack:backup"));
+          setDecks(local.decks || SEED);
+          setBests(local.bests || {});
+        } catch {
+          setDecks(SEED);
+        }
         setStatus("ready");
       }
     })();
@@ -1320,6 +1388,8 @@ export default function StudyStack() {
     if (decks === null) return;
     if (first.current) { first.current = false; }
     const t = setTimeout(async () => {
+      // Mirror to localStorage first — a second line of defence if the server write fails or corrupts.
+      try { localStorage.setItem("studystack:backup", JSON.stringify({ decks, bests })); } catch {}
       try {
         const r = await fetch("/api/decks", {
           method: "POST",
@@ -1344,6 +1414,16 @@ export default function StudyStack() {
       cards: d.cards.map((c) => (c.id === cardId ? { ...c, srs: grade(c.srs, g) } : c)),
     })));
   }, []);
+
+  const exportAll = () => {
+    const blob = new Blob([JSON.stringify({ decks, bests }, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `studystack-export-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   const deck = decks && view.deckId ? decks.find((d) => d.id === view.deckId) : null;
   if (status === "loading") {
@@ -1417,8 +1497,10 @@ export default function StudyStack() {
 
             <p className="ss-note" style={{ marginTop: 34 }}>
               Decks persist between sessions.{" "}
-              <button className="ss-link" onClick={() => { if (confirm("Erase all decks and restore the two samples?")) { setDecks(SEED); setBests({}); } }}>
-                Reset to sample data
+              <button className="ss-link" onClick={exportAll}>Export all data</button>
+              {" · "}
+              <button className="ss-link" onClick={() => { if (confirm("Erase all decks? This can't be undone.")) { setDecks([]); setBests({}); } }}>
+                Erase all decks
               </button>
             </p>
           </>
