@@ -154,6 +154,14 @@ const CSS = `
 .ss-track { flex: 1; min-width: 120px; height: 4px; background: var(--paper-deep); }
 .ss-track i { display: block; height: 100%; background: var(--ink); transition: width .3s; }
 
+.ss-stage-row { display: flex; align-items: center; gap: 16px; width: 100%; justify-content: center; }
+.ss-side-actions { display: flex; flex-direction: column; gap: 10px; flex: 0 0 auto; }
+.ss-side-actions .ss-btn { white-space: nowrap; }
+@media (max-width: 760px) {
+  .ss-stage-row { flex-direction: column; }
+  .ss-side-actions { flex-direction: row; }
+}
+
 .ss-stage { position: relative; width: 100%; max-width: 620px; }
 .ss-ghost {
   position: absolute; left: 0; right: 0; top: 0; height: 100%;
@@ -647,11 +655,12 @@ function Done({ title, lines, actions }) {
 
 /* ------------------------------ modes ------------------------------ */
 
-function Flashcards({ deck, onExit, onGrade }) {
+function Flashcards({ deck, onExit, onGrade, onPatch }) {
   const [queue, setQueue] = useState(() => shuffle(deck.cards));
   const [i, setI] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [missed, setMissed] = useState([]);
+  const [flagged, setFlagged] = useState(() => new Set(deck.cards.filter((c) => c.flagged).map((c) => c.id)));
   const card = queue[i];
 
   const answer = useCallback((known) => {
@@ -661,6 +670,25 @@ function Flashcards({ deck, onExit, onGrade }) {
     setFlipped(false);
     setI((n) => n + 1);
   }, [card, onGrade]);
+
+  const toggleFlag = useCallback(() => {
+    if (!card) return;
+    const next = !flagged.has(card.id);
+    setFlagged((f) => {
+      const s = new Set(f);
+      if (next) s.add(card.id); else s.delete(card.id);
+      return s;
+    });
+    onPatch({ ...deck, cards: deck.cards.map((c) => (c.id === card.id ? { ...c, flagged: next } : c)) });
+  }, [card, flagged, deck, onPatch]);
+
+  const deleteCard = useCallback(() => {
+    if (!card) return;
+    if (!confirm(`Delete "${card.term}"? This can't be undone.`)) return;
+    onPatch({ ...deck, cards: deck.cards.filter((c) => c.id !== card.id) });
+    setQueue((q) => q.filter((c) => c.id !== card.id));
+    setFlipped(false);
+  }, [card, deck, onPatch]);
 
   useEffect(() => {
     const h = (e) => {
@@ -693,8 +721,16 @@ function Flashcards({ deck, onExit, onGrade }) {
   return (
     <div className="ss-study">
       <Bar done={i} total={queue.length} />
-      <Card front={card.term} back={card.def} flipped={flipped} remaining={queue.length - i}
-        onFlip={() => setFlipped((f) => !f)} />
+      <div className="ss-stage-row">
+        <Card front={card.term} back={card.def} flipped={flipped} remaining={queue.length - i}
+          onFlip={() => setFlipped((f) => !f)} />
+        <div className="ss-side-actions">
+          <button className={`ss-btn sm${flagged.has(card.id) ? " hl" : ""}`} onClick={toggleFlag}>
+            {flagged.has(card.id) ? "🚩 Flagged" : "🚩 Flag"}
+          </button>
+          <button className="ss-btn sm" onClick={deleteCard}>🗑 Delete</button>
+        </div>
+      </div>
       <div className="ss-verdicts">
         <button className="ss-btn ss-v-no" onClick={() => answer(false)}>Still learning <span className="ss-note">←</span></button>
         <button className="ss-btn ss-v-yes" onClick={() => answer(true)}>Got it <span className="ss-note">→</span></button>
@@ -1438,7 +1474,7 @@ export default function StudyStack() {
 
         {view.screen === "study" && deck ? (
           <>
-            {view.mode === "flashcards" && <Flashcards deck={deck} onGrade={gradeCard} onExit={() => setView({ screen: "deck", deckId: deck.id })} />}
+            {view.mode === "flashcards" && <Flashcards deck={deck} onGrade={gradeCard} onPatch={patchDeck} onExit={() => setView({ screen: "deck", deckId: deck.id })} />}
             {view.mode === "learn" && <Learn deck={deck} onGrade={gradeCard} onExit={() => setView({ screen: "deck", deckId: deck.id })} />}
             {view.mode === "match" && (
               <Match deck={deck} best={bests[deck.id]} onBest={(s) => setBests((b) => (!b[deck.id] || s < b[deck.id] ? { ...b, [deck.id]: s } : b))}

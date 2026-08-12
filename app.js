@@ -24640,6 +24640,14 @@
 .ss-track { flex: 1; min-width: 120px; height: 4px; background: var(--paper-deep); }
 .ss-track i { display: block; height: 100%; background: var(--ink); transition: width .3s; }
 
+.ss-stage-row { display: flex; align-items: center; gap: 16px; width: 100%; justify-content: center; }
+.ss-side-actions { display: flex; flex-direction: column; gap: 10px; flex: 0 0 auto; }
+.ss-side-actions .ss-btn { white-space: nowrap; }
+@media (max-width: 760px) {
+  .ss-stage-row { flex-direction: column; }
+  .ss-side-actions { flex-direction: row; }
+}
+
 .ss-stage { position: relative; width: 100%; max-width: 620px; }
 .ss-ghost {
   position: absolute; left: 0; right: 0; top: 0; height: 100%;
@@ -25104,11 +25112,12 @@ ${c.def}
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", gap: 10, justifyContent: "center", marginTop: 22, flexWrap: "wrap" }, children: actions })
     ] });
   }
-  function Flashcards({ deck, onExit, onGrade }) {
+  function Flashcards({ deck, onExit, onGrade, onPatch }) {
     const [queue, setQueue] = (0, import_react.useState)(() => shuffle(deck.cards));
     const [i, setI] = (0, import_react.useState)(0);
     const [flipped, setFlipped] = (0, import_react.useState)(false);
     const [missed, setMissed] = (0, import_react.useState)([]);
+    const [flagged, setFlagged] = (0, import_react.useState)(() => new Set(deck.cards.filter((c) => c.flagged).map((c) => c.id)));
     const card = queue[i];
     const answer = (0, import_react.useCallback)((known) => {
       if (!card) return;
@@ -25117,6 +25126,24 @@ ${c.def}
       setFlipped(false);
       setI((n) => n + 1);
     }, [card, onGrade]);
+    const toggleFlag = (0, import_react.useCallback)(() => {
+      if (!card) return;
+      const next = !flagged.has(card.id);
+      setFlagged((f) => {
+        const s = new Set(f);
+        if (next) s.add(card.id);
+        else s.delete(card.id);
+        return s;
+      });
+      onPatch({ ...deck, cards: deck.cards.map((c) => c.id === card.id ? { ...c, flagged: next } : c) });
+    }, [card, flagged, deck, onPatch]);
+    const deleteCard = (0, import_react.useCallback)(() => {
+      if (!card) return;
+      if (!confirm(`Delete "${card.term}"? This can't be undone.`)) return;
+      onPatch({ ...deck, cards: deck.cards.filter((c) => c.id !== card.id) });
+      setQueue((q) => q.filter((c) => c.id !== card.id));
+      setFlipped(false);
+    }, [card, deck, onPatch]);
     (0, import_react.useEffect)(() => {
       const h = (e) => {
         if (e.key === " ") {
@@ -25157,16 +25184,22 @@ ${c.def}
     }
     return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-study", children: [
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Bar, { done: i, total: queue.length }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-        Card,
-        {
-          front: card.term,
-          back: card.def,
-          flipped,
-          remaining: queue.length - i,
-          onFlip: () => setFlipped((f) => !f)
-        }
-      ),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-stage-row", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+          Card,
+          {
+            front: card.term,
+            back: card.def,
+            flipped,
+            remaining: queue.length - i,
+            onFlip: () => setFlipped((f) => !f)
+          }
+        ),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-side-actions", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: `ss-btn sm${flagged.has(card.id) ? " hl" : ""}`, onClick: toggleFlag, children: flagged.has(card.id) ? "\u{1F6A9} Flagged" : "\u{1F6A9} Flag" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn sm", onClick: deleteCard, children: "\u{1F5D1} Delete" })
+        ] })
+      ] }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-verdicts", children: [
         /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { className: "ss-btn ss-v-no", onClick: () => answer(false), children: [
           "Still learning ",
@@ -26002,7 +26035,7 @@ Photosynthesis              <- definition list
           }
         ) : null,
         view.screen === "study" && deck ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
-          view.mode === "flashcards" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Flashcards, { deck, onGrade: gradeCard, onExit: () => setView({ screen: "deck", deckId: deck.id }) }),
+          view.mode === "flashcards" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Flashcards, { deck, onGrade: gradeCard, onPatch: patchDeck, onExit: () => setView({ screen: "deck", deckId: deck.id }) }),
           view.mode === "learn" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Learn, { deck, onGrade: gradeCard, onExit: () => setView({ screen: "deck", deckId: deck.id }) }),
           view.mode === "match" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
             Match,
