@@ -24507,6 +24507,11 @@
   --teal: #0B7161;
   --rose: #C82F48;
   --navy: #16305A;
+  --teal-soft: #DFEFE9;
+  --rose-soft: #FBE3E6;
+  --placeholder: #A8B6C6;
+  --ghost-hover: rgba(255,255,255,.5);
+  --drop-bg: rgba(253,251,246,.55);
 
   --display: 'Bricolage Grotesque', 'Helvetica Neue', sans-serif;
   --body: 'IBM Plex Sans', system-ui, sans-serif;
@@ -24517,6 +24522,24 @@
   font-family: var(--body);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+  transition: background .15s ease, color .15s ease;
+}
+.ss.dark {
+  --paper: #131722;
+  --paper-deep: #1B2130;
+  --card: #1E2536;
+  --ink: #E8ECF4;
+  --ink-soft: #8B99B0;
+  --rule: #323C52;
+  --hl: #F2CE3B;
+  --teal: #2FBF95;
+  --rose: #FF7A8E;
+  --navy: #86A9FF;
+  --teal-soft: #1C3A34;
+  --rose-soft: #3D232B;
+  --placeholder: #556278;
+  --ghost-hover: rgba(255,255,255,.07);
+  --drop-bg: rgba(30,37,54,.55);
 }
 .ss *, .ss *::before, .ss *::after { box-sizing: border-box; }
 .ss button { font: inherit; color: inherit; cursor: pointer; border: none; background: none; }
@@ -24575,7 +24598,7 @@
 .ss-btn:active { transform: translate(3px, 3px); box-shadow: 0 0 0 var(--ink); }
 .ss-btn.hl { background: var(--hl); }
 .ss-btn.ghost { box-shadow: none; background: transparent; }
-.ss-btn.ghost:hover { background: rgba(255,255,255,.5); transform: none; }
+.ss-btn.ghost:hover { background: var(--ghost-hover); transform: none; }
 .ss-btn.sm { padding: 6px 11px; font-size: 12.5px; box-shadow: 2px 2px 0 var(--ink); }
 .ss-btn[disabled] { opacity: .4; cursor: not-allowed; box-shadow: none; transform: none; }
 .ss-link {
@@ -24628,7 +24651,7 @@
   border: none; background: transparent; width: 100%; resize: none; overflow: hidden;
   font-size: 14.5px; line-height: 1.45; padding: 2px 0;
 }
-.ss-cell::placeholder { color: #A8B6C6; }
+.ss-cell::placeholder { color: var(--placeholder); }
 .ss-cell.term { font-weight: 600; }
 .ss-x { color: var(--ink-soft); font-size: 17px; line-height: 1; padding: 2px 4px; }
 .ss-x:hover { color: var(--rose); }
@@ -24680,8 +24703,8 @@
 .ss-hint { font-family: var(--mono); font-size: 11px; color: var(--ink-soft); text-align: center; }
 .ss-verdicts { display: flex; gap: 12px; width: 100%; max-width: 620px; }
 .ss-verdicts .ss-btn { flex: 1; }
-.ss-v-no { background: #FBE3E6; }
-.ss-v-yes { background: #DFEFE9; }
+.ss-v-no { background: var(--rose-soft); }
+.ss-v-yes { background: var(--teal-soft); }
 
 /* ---------- typed answer ---------- */
 .ss-panel {
@@ -24699,8 +24722,8 @@
   font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
   border: 1.2px solid var(--ink); border-radius: 2px; padding: 2px 7px; display: inline-block;
 }
-.ss-tag.ok { background: #DFEFE9; }
-.ss-tag.no { background: #FBE3E6; }
+.ss-tag.ok { background: var(--teal-soft); }
+.ss-tag.no { background: var(--rose-soft); }
 .ss-ans { font-size: 18px; margin: 10px 0 0; line-height: 1.45; }
 .ss-you { font-family: var(--mono); font-size: 13px; color: var(--ink-soft); margin-top: 6px; }
 .ss-you s { color: var(--rose); }
@@ -24734,8 +24757,8 @@
 }
 .ss-opt:hover { border-color: var(--ink); }
 .ss-opt.on { border-color: var(--ink); background: var(--hl); }
-.ss-opt.right { border-color: var(--teal); background: #DFEFE9; }
-.ss-opt.wrong { border-color: var(--rose); background: #FBE3E6; }
+.ss-opt.right { border-color: var(--teal); background: var(--teal-soft); }
+.ss-opt.wrong { border-color: var(--rose); background: var(--rose-soft); }
 .ss-opt kbd { font-family: var(--mono); font-size: 11px; padding-top: 2px; color: var(--ink-soft); }
 .ss-score { font-family: var(--display); font-size: clamp(52px, 11vw, 84px); font-weight: 800; letter-spacing: -.05em; line-height: .9; }
 .ss-score small { font-family: var(--mono); font-size: 14px; font-weight: 400; letter-spacing: 0; color: var(--ink-soft); }
@@ -24783,7 +24806,7 @@
 .ss-tab.on { border-color: var(--rule); background: var(--card); color: var(--ink); }
 .ss-drop {
   border: 1.5px dashed var(--ink); border-radius: 4px; padding: 26px 20px; text-align: center;
-  background: rgba(253,251,246,.55); transition: background .15s;
+  background: var(--drop-bg); transition: background .15s;
 }
 .ss-drop.over { background: var(--hl); }
 .ss-drop p { margin: 8px 0 0; font-size: 13px; color: var(--ink-soft); }
@@ -25212,100 +25235,6 @@ ${c.def}
       ] })
     ] });
   }
-  function Learn({ deck, onExit, onGrade }) {
-    const NEED = 2;
-    const [progress, setProgress] = (0, import_react.useState)(() => {
-      const p = {};
-      deck.cards.forEach((c) => {
-        p[c.id] = 0;
-      });
-      return p;
-    });
-    const [queue, setQueue] = (0, import_react.useState)(() => shuffle(deck.cards).map((c) => c.id));
-    const [typed, setTyped] = (0, import_react.useState)("");
-    const [result, setResult] = (0, import_react.useState)(null);
-    const box = (0, import_react.useRef)(null);
-    const byId = (0, import_react.useMemo)(() => Object.fromEntries(deck.cards.map((c) => [c.id, c])), [deck.cards]);
-    const card = queue.length ? byId[queue[0]] : null;
-    const mastered = Object.values(progress).filter((v) => v >= NEED).length;
-    (0, import_react.useEffect)(() => {
-      if (!result && box.current) box.current.focus();
-    }, [result, card]);
-    const submit = () => {
-      if (!card || result) return;
-      const ok = checkAnswer(typed, card.def);
-      setResult({ ok, given: typed });
-      onGrade(card.id, ok ? 3 : 1);
-    };
-    const advance = (forceOk) => {
-      const ok = forceOk ?? result.ok;
-      const score = ok ? (progress[card.id] || 0) + 1 : 0;
-      setProgress((p) => ({ ...p, [card.id]: score }));
-      setQueue((q) => score >= NEED ? q.slice(1) : [...q.slice(1), q[0]]);
-      setTyped("");
-      setResult(null);
-    };
-    if (!card) {
-      return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-        Done,
-        {
-          title: "Learned",
-          lines: [`All ${deck.cards.length} cards answered correctly ${NEED}\xD7 in a row.`],
-          actions: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn hl", onClick: onExit, children: "Back to deck" }, "e")]
-        }
-      );
-    }
-    return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-study", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Bar, { done: mastered, total: deck.cards.length }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-panel", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-face-lab", children: [
-          "Type the definition \xB7 ",
-          progress[card.id] || 0,
-          " of ",
-          NEED,
-          " correct"
-        ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-prompt", children: card.term }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-          "input",
-          {
-            ref: box,
-            className: "ss-input",
-            value: result ? result.given : typed,
-            readOnly: !!result,
-            placeholder: "Your answer",
-            "aria-label": "Your answer",
-            onChange: (e) => setTyped(e.target.value),
-            onKeyDown: (e) => {
-              if (e.key === "Enter") result ? advance() : submit();
-            }
-          }
-        ),
-        result ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-feed", "aria-live": "polite", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: `ss-tag ${result.ok ? "ok" : "no"}`, children: result.ok ? "Correct" : "Not quite" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "ss-ans", children: card.def }),
-          !result.ok && result.given ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-you", children: [
-            "you wrote ",
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("s", { children: result.given })
-          ] }) : null,
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 10, marginTop: 16, flexWrap: "wrap" }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { className: "ss-btn hl", onClick: () => advance(), children: [
-              "Continue ",
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "ss-note", children: "\u21B5" })
-            ] }),
-            !result.ok ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn ghost", onClick: () => advance(true), children: "I was right \u2014 count it" }) : null
-          ] })
-        ] }) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 10, marginTop: 18, flexWrap: "wrap" }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn hl", onClick: submit, disabled: !typed.trim(), children: "Check" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn ghost", onClick: () => {
-            setResult({ ok: false, given: "" });
-            onGrade(card.id, 1);
-          }, children: "Skip \u2014 show answer" })
-        ] })
-      ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-link", onClick: onExit, children: "Leave session" })
-    ] });
-  }
   function Match({ deck, onExit, best, onBest }) {
     const PAIRS = Math.min(6, deck.cards.length);
     const build = () => {
@@ -25566,7 +25495,6 @@ ${c.def}
   }
   var MODES = [
     { id: "flashcards", name: "Flashcards", blurb: "Flip and sort by feel" },
-    { id: "learn", name: "Learn", blurb: "Type it twice to master" },
     { id: "match", name: "Match", blurb: "Timed pairs against the clock" },
     { id: "test", name: "Test", blurb: "Mixed, graded at the end" },
     { id: "review", name: "Review", blurb: "Spaced repetition queue" }
@@ -25575,6 +25503,10 @@ ${c.def}
     const pct = Math.round(mastery(deck) * 100);
     const due = dueCount(deck);
     const [copied, setCopied] = (0, import_react.useState)("");
+    const onResetProgress = () => {
+      if (!confirm(`Reset all progress for "${deck.title}"? Every card goes back to unseen \u2014 this can't be undone.`)) return;
+      onPatch({ ...deck, cards: deck.cards.map((c) => ({ ...c, srs: freshSrs() })) });
+    };
     const onCopy = async () => {
       const md = toMarkdown(deck);
       try {
@@ -25666,6 +25598,7 @@ ${c.def}
       ] }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginTop: 26, display: "flex", gap: 18, flexWrap: "wrap" }, children: [
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-link", onClick: onCopy, children: copied || "Copy deck as markdown" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-link", onClick: onResetProgress, children: "Reset progress" }),
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-link", onClick: onDelete, children: "Delete this deck" })
       ] })
     ] });
@@ -25903,7 +25836,11 @@ Photosynthesis              <- definition list
     const [view, setView] = (0, import_react.useState)({ screen: "home" });
     const [sheet, setSheet] = (0, import_react.useState)(null);
     const [status, setStatus] = (0, import_react.useState)("loading");
+    const [dark, setDark] = (0, import_react.useState)(() => localStorage.getItem("studystack:theme") === "dark");
     const first = (0, import_react.useRef)(true);
+    (0, import_react.useEffect)(() => {
+      localStorage.setItem("studystack:theme", dark ? "dark" : "light");
+    }, [dark]);
     (0, import_react.useEffect)(() => {
       (async () => {
         try {
@@ -25949,22 +25886,24 @@ Photosynthesis              <- definition list
     }, []);
     const deck = decks && view.deckId ? decks.find((d) => d.id === view.deckId) : null;
     if (status === "loading") {
-      return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss", children: [
+      return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: `ss${dark ? " dark" : ""}`, children: [
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("style", { children: CSS }),
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-wrap", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-eyebrow", children: "Loading your decks\u2026" }) })
       ] });
     }
-    return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss", children: [
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: `ss${dark ? " dark" : ""}`, children: [
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("style", { children: CSS }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-wrap", children: [
         /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", { className: "ss-top", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-mark", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { className: "ss-mark", onClick: () => setView({ screen: "home" }), style: { cursor: "pointer" }, children: [
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("i", {}),
             "StudyStack"
           ] }),
+          view.screen !== "home" ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-link", onClick: () => setView({ screen: "home" }), children: "\u2190 Home" }) : null,
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "ss-crumb", children: view.screen === "home" ? `${decks.length} decks` : view.screen === "deck" ? deck?.title : `${deck?.title} \xB7 ${view.mode}` }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "ss-spacer" }),
-          status === "nosave" ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "ss-crumb", style: { color: "var(--rose)" }, children: "Not saving \u2014 storage unavailable" }) : null
+          status === "nosave" ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "ss-crumb", style: { color: "var(--rose)" }, children: "Not saving \u2014 storage unavailable" }) : null,
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn sm ghost", onClick: () => setDark((d) => !d), "aria-label": "Toggle dark mode", children: dark ? "\u2600\uFE0F Light" : "\u{1F319} Dark" })
         ] }),
         view.screen === "home" ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-sec-head", children: [
@@ -26036,7 +25975,6 @@ Photosynthesis              <- definition list
         ) : null,
         view.screen === "study" && deck ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
           view.mode === "flashcards" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Flashcards, { deck, onGrade: gradeCard, onPatch: patchDeck, onExit: () => setView({ screen: "deck", deckId: deck.id }) }),
-          view.mode === "learn" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Learn, { deck, onGrade: gradeCard, onExit: () => setView({ screen: "deck", deckId: deck.id }) }),
           view.mode === "match" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
             Match,
             {

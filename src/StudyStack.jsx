@@ -21,6 +21,11 @@ const CSS = `
   --teal: #0B7161;
   --rose: #C82F48;
   --navy: #16305A;
+  --teal-soft: #DFEFE9;
+  --rose-soft: #FBE3E6;
+  --placeholder: #A8B6C6;
+  --ghost-hover: rgba(255,255,255,.5);
+  --drop-bg: rgba(253,251,246,.55);
 
   --display: 'Bricolage Grotesque', 'Helvetica Neue', sans-serif;
   --body: 'IBM Plex Sans', system-ui, sans-serif;
@@ -31,6 +36,24 @@ const CSS = `
   font-family: var(--body);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+  transition: background .15s ease, color .15s ease;
+}
+.ss.dark {
+  --paper: #131722;
+  --paper-deep: #1B2130;
+  --card: #1E2536;
+  --ink: #E8ECF4;
+  --ink-soft: #8B99B0;
+  --rule: #323C52;
+  --hl: #F2CE3B;
+  --teal: #2FBF95;
+  --rose: #FF7A8E;
+  --navy: #86A9FF;
+  --teal-soft: #1C3A34;
+  --rose-soft: #3D232B;
+  --placeholder: #556278;
+  --ghost-hover: rgba(255,255,255,.07);
+  --drop-bg: rgba(30,37,54,.55);
 }
 .ss *, .ss *::before, .ss *::after { box-sizing: border-box; }
 .ss button { font: inherit; color: inherit; cursor: pointer; border: none; background: none; }
@@ -89,7 +112,7 @@ const CSS = `
 .ss-btn:active { transform: translate(3px, 3px); box-shadow: 0 0 0 var(--ink); }
 .ss-btn.hl { background: var(--hl); }
 .ss-btn.ghost { box-shadow: none; background: transparent; }
-.ss-btn.ghost:hover { background: rgba(255,255,255,.5); transform: none; }
+.ss-btn.ghost:hover { background: var(--ghost-hover); transform: none; }
 .ss-btn.sm { padding: 6px 11px; font-size: 12.5px; box-shadow: 2px 2px 0 var(--ink); }
 .ss-btn[disabled] { opacity: .4; cursor: not-allowed; box-shadow: none; transform: none; }
 .ss-link {
@@ -142,7 +165,7 @@ const CSS = `
   border: none; background: transparent; width: 100%; resize: none; overflow: hidden;
   font-size: 14.5px; line-height: 1.45; padding: 2px 0;
 }
-.ss-cell::placeholder { color: #A8B6C6; }
+.ss-cell::placeholder { color: var(--placeholder); }
 .ss-cell.term { font-weight: 600; }
 .ss-x { color: var(--ink-soft); font-size: 17px; line-height: 1; padding: 2px 4px; }
 .ss-x:hover { color: var(--rose); }
@@ -194,8 +217,8 @@ const CSS = `
 .ss-hint { font-family: var(--mono); font-size: 11px; color: var(--ink-soft); text-align: center; }
 .ss-verdicts { display: flex; gap: 12px; width: 100%; max-width: 620px; }
 .ss-verdicts .ss-btn { flex: 1; }
-.ss-v-no { background: #FBE3E6; }
-.ss-v-yes { background: #DFEFE9; }
+.ss-v-no { background: var(--rose-soft); }
+.ss-v-yes { background: var(--teal-soft); }
 
 /* ---------- typed answer ---------- */
 .ss-panel {
@@ -213,8 +236,8 @@ const CSS = `
   font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
   border: 1.2px solid var(--ink); border-radius: 2px; padding: 2px 7px; display: inline-block;
 }
-.ss-tag.ok { background: #DFEFE9; }
-.ss-tag.no { background: #FBE3E6; }
+.ss-tag.ok { background: var(--teal-soft); }
+.ss-tag.no { background: var(--rose-soft); }
 .ss-ans { font-size: 18px; margin: 10px 0 0; line-height: 1.45; }
 .ss-you { font-family: var(--mono); font-size: 13px; color: var(--ink-soft); margin-top: 6px; }
 .ss-you s { color: var(--rose); }
@@ -248,8 +271,8 @@ const CSS = `
 }
 .ss-opt:hover { border-color: var(--ink); }
 .ss-opt.on { border-color: var(--ink); background: var(--hl); }
-.ss-opt.right { border-color: var(--teal); background: #DFEFE9; }
-.ss-opt.wrong { border-color: var(--rose); background: #FBE3E6; }
+.ss-opt.right { border-color: var(--teal); background: var(--teal-soft); }
+.ss-opt.wrong { border-color: var(--rose); background: var(--rose-soft); }
 .ss-opt kbd { font-family: var(--mono); font-size: 11px; padding-top: 2px; color: var(--ink-soft); }
 .ss-score { font-family: var(--display); font-size: clamp(52px, 11vw, 84px); font-weight: 800; letter-spacing: -.05em; line-height: .9; }
 .ss-score small { font-family: var(--mono); font-size: 14px; font-weight: 400; letter-spacing: 0; color: var(--ink-soft); }
@@ -297,7 +320,7 @@ const CSS = `
 .ss-tab.on { border-color: var(--rule); background: var(--card); color: var(--ink); }
 .ss-drop {
   border: 1.5px dashed var(--ink); border-radius: 4px; padding: 26px 20px; text-align: center;
-  background: rgba(253,251,246,.55); transition: background .15s;
+  background: var(--drop-bg); transition: background .15s;
 }
 .ss-drop.over { background: var(--hl); }
 .ss-drop p { margin: 8px 0 0; font-size: 13px; color: var(--ink-soft); }
@@ -739,79 +762,6 @@ function Flashcards({ deck, onExit, onGrade, onPatch }) {
   );
 }
 
-function Learn({ deck, onExit, onGrade }) {
-  const NEED = 2;
-  const [progress, setProgress] = useState(() => {
-    const p = {};
-    deck.cards.forEach((c) => { p[c.id] = 0; });
-    return p;
-  });
-  const [queue, setQueue] = useState(() => shuffle(deck.cards).map((c) => c.id));
-  const [typed, setTyped] = useState("");
-  const [result, setResult] = useState(null);
-  const box = useRef(null);
-
-  const byId = useMemo(() => Object.fromEntries(deck.cards.map((c) => [c.id, c])), [deck.cards]);
-  const card = queue.length ? byId[queue[0]] : null;
-  const mastered = Object.values(progress).filter((v) => v >= NEED).length;
-
-  useEffect(() => { if (!result && box.current) box.current.focus(); }, [result, card]);
-
-  const submit = () => {
-    if (!card || result) return;
-    const ok = checkAnswer(typed, card.def);
-    setResult({ ok, given: typed });
-    onGrade(card.id, ok ? 3 : 1);
-  };
-
-  const advance = (forceOk) => {
-    const ok = forceOk ?? result.ok;
-    const score = ok ? (progress[card.id] || 0) + 1 : 0;
-    setProgress((p) => ({ ...p, [card.id]: score }));
-    setQueue((q) => (score >= NEED ? q.slice(1) : [...q.slice(1), q[0]]));
-    setTyped("");
-    setResult(null);
-  };
-
-  if (!card) {
-    return (
-      <Done title="Learned" lines={[`All ${deck.cards.length} cards answered correctly ${NEED}× in a row.`]}
-        actions={[<button key="e" className="ss-btn hl" onClick={onExit}>Back to deck</button>]} />
-    );
-  }
-
-  return (
-    <div className="ss-study">
-      <Bar done={mastered} total={deck.cards.length} />
-      <div className="ss-panel">
-        <div className="ss-face-lab">Type the definition · {progress[card.id] || 0} of {NEED} correct</div>
-        <div className="ss-prompt">{card.term}</div>
-        <input ref={box} className="ss-input" value={result ? result.given : typed} readOnly={!!result}
-          placeholder="Your answer" aria-label="Your answer"
-          onChange={(e) => setTyped(e.target.value)}
-          onKeyDown={(e) => { if (e.key === "Enter") (result ? advance() : submit()); }} />
-        {result ? (
-          <div className="ss-feed" aria-live="polite">
-            <span className={`ss-tag ${result.ok ? "ok" : "no"}`}>{result.ok ? "Correct" : "Not quite"}</span>
-            <p className="ss-ans">{card.def}</p>
-            {!result.ok && result.given ? <div className="ss-you">you wrote <s>{result.given}</s></div> : null}
-            <div style={{ display: "flex", gap: 10, marginTop: 16, flexWrap: "wrap" }}>
-              <button className="ss-btn hl" onClick={() => advance()}>Continue <span className="ss-note">↵</span></button>
-              {!result.ok ? <button className="ss-btn ghost" onClick={() => advance(true)}>I was right — count it</button> : null}
-            </div>
-          </div>
-        ) : (
-          <div style={{ display: "flex", gap: 10, marginTop: 18, flexWrap: "wrap" }}>
-            <button className="ss-btn hl" onClick={submit} disabled={!typed.trim()}>Check</button>
-            <button className="ss-btn ghost" onClick={() => { setResult({ ok: false, given: "" }); onGrade(card.id, 1); }}>Skip — show answer</button>
-          </div>
-        )}
-      </div>
-      <button className="ss-link" onClick={onExit}>Leave session</button>
-    </div>
-  );
-}
-
 function Match({ deck, onExit, best, onBest }) {
   const PAIRS = Math.min(6, deck.cards.length);
   const build = () => {
@@ -1061,7 +1011,6 @@ function Review({ deck, onExit, onGrade }) {
 
 const MODES = [
   { id: "flashcards", name: "Flashcards", blurb: "Flip and sort by feel" },
-  { id: "learn", name: "Learn", blurb: "Type it twice to master" },
   { id: "match", name: "Match", blurb: "Timed pairs against the clock" },
   { id: "test", name: "Test", blurb: "Mixed, graded at the end" },
   { id: "review", name: "Review", blurb: "Spaced repetition queue" },
@@ -1071,6 +1020,11 @@ function DeckDetail({ deck, onOpen, onPatch, onDelete, onBack, onImport }) {
   const pct = Math.round(mastery(deck) * 100);
   const due = dueCount(deck);
   const [copied, setCopied] = useState("");
+
+  const onResetProgress = () => {
+    if (!confirm(`Reset all progress for "${deck.title}"? Every card goes back to unseen — this can't be undone.`)) return;
+    onPatch({ ...deck, cards: deck.cards.map((c) => ({ ...c, srs: freshSrs() })) });
+  };
 
   const onCopy = async () => {
     const md = toMarkdown(deck);
@@ -1148,6 +1102,7 @@ function DeckDetail({ deck, onOpen, onPatch, onDelete, onBack, onImport }) {
 
       <div style={{ marginTop: 26, display: "flex", gap: 18, flexWrap: "wrap" }}>
         <button className="ss-link" onClick={onCopy}>{copied || "Copy deck as markdown"}</button>
+        <button className="ss-link" onClick={onResetProgress}>Reset progress</button>
         <button className="ss-link" onClick={onDelete}>Delete this deck</button>
       </div>
     </>
@@ -1338,7 +1293,12 @@ export default function StudyStack() {
   const [view, setView] = useState({ screen: "home" });
   const [sheet, setSheet] = useState(null);
   const [status, setStatus] = useState("loading");
+  const [dark, setDark] = useState(() => localStorage.getItem("studystack:theme") === "dark");
   const first = useRef(true);
+
+  useEffect(() => {
+    localStorage.setItem("studystack:theme", dark ? "dark" : "light");
+  }, [dark]);
 
   useEffect(() => {
     (async () => {
@@ -1388,23 +1348,31 @@ export default function StudyStack() {
   const deck = decks && view.deckId ? decks.find((d) => d.id === view.deckId) : null;
   if (status === "loading") {
     return (
-      <div className="ss"><style>{CSS}</style>
+      <div className={`ss${dark ? " dark" : ""}`}><style>{CSS}</style>
         <div className="ss-wrap"><div className="ss-eyebrow">Loading your decks…</div></div>
       </div>
     );
   }
 
   return (
-    <div className="ss">
+    <div className={`ss${dark ? " dark" : ""}`}>
       <style>{CSS}</style>
       <div className="ss-wrap">
         <header className="ss-top">
-          <div className="ss-mark"><i />StudyStack</div>
+          <button className="ss-mark" onClick={() => setView({ screen: "home" })} style={{ cursor: "pointer" }}>
+            <i />StudyStack
+          </button>
+          {view.screen !== "home" ? (
+            <button className="ss-link" onClick={() => setView({ screen: "home" })}>← Home</button>
+          ) : null}
           <span className="ss-crumb">
             {view.screen === "home" ? `${decks.length} decks` : view.screen === "deck" ? deck?.title : `${deck?.title} · ${view.mode}`}
           </span>
           <span className="ss-spacer" />
           {status === "nosave" ? <span className="ss-crumb" style={{ color: "var(--rose)" }}>Not saving — storage unavailable</span> : null}
+          <button className="ss-btn sm ghost" onClick={() => setDark((d) => !d)} aria-label="Toggle dark mode">
+            {dark ? "☀️ Light" : "🌙 Dark"}
+          </button>
         </header>
 
         {view.screen === "home" ? (
@@ -1475,7 +1443,6 @@ export default function StudyStack() {
         {view.screen === "study" && deck ? (
           <>
             {view.mode === "flashcards" && <Flashcards deck={deck} onGrade={gradeCard} onPatch={patchDeck} onExit={() => setView({ screen: "deck", deckId: deck.id })} />}
-            {view.mode === "learn" && <Learn deck={deck} onGrade={gradeCard} onExit={() => setView({ screen: "deck", deckId: deck.id })} />}
             {view.mode === "match" && (
               <Match deck={deck} best={bests[deck.id]} onBest={(s) => setBests((b) => (!b[deck.id] || s < b[deck.id] ? { ...b, [deck.id]: s } : b))}
                 onExit={() => setView({ screen: "deck", deckId: deck.id })} />
