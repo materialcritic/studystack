@@ -24968,6 +24968,20 @@
     return (h & 1) === 1;
   }
   var mastery = (d) => d.cards.length ? d.cards.reduce((s, c) => s + Math.min(c.srs.stability / 21, 1), 0) / d.cards.length : 0;
+  var retentionOf = (cards) => cards.length ? cards.reduce((s, c) => s + Math.min(c.srs.stability / 21, 1), 0) / cards.length : 0;
+  function dueForecast(decks, days = 30) {
+    const buckets = new Array(days).fill(0);
+    const today = /* @__PURE__ */ new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayMs = today.getTime();
+    decks.forEach((d) => d.cards.forEach((c) => {
+      const due = new Date(c.srs.due);
+      due.setHours(0, 0, 0, 0);
+      const diff = Math.round((due.getTime() - todayMs) / DAY);
+      buckets[Math.min(Math.max(diff, 0), days - 1)] += 1;
+    }));
+    return buckets;
+  }
   function humanGap(ms) {
     const days = ms / DAY;
     if (days < 1) return `${Math.max(1, Math.round(days * 24))}h`;
@@ -26415,6 +26429,78 @@ Photosynthesis              <- definition list
       ] })
     ] }) });
   }
+  function StatsView({ decks, onBack }) {
+    const allCards = (0, import_react.useMemo)(() => decks.flatMap((d) => d.cards), [decks]);
+    const totalDue = allCards.filter(isDue).length;
+    const leechCount = allCards.filter(isLeech).length;
+    const overallRetention = Math.round(retentionOf(allCards) * 100);
+    const byTag = (0, import_react.useMemo)(() => {
+      const m = {};
+      allCards.forEach((c) => {
+        const tags = cardTags(c).length ? cardTags(c) : ["untagged"];
+        tags.forEach((t) => {
+          (m[t] = m[t] || []).push(c);
+        });
+      });
+      return Object.entries(m).map(([tag, cards]) => ({ tag, cards, retention: retentionOf(cards), due: cards.filter(isDue).length })).sort((a, b) => b.cards.length - a.cards.length);
+    }, [allCards]);
+    const forecast = (0, import_react.useMemo)(() => dueForecast(decks, 30), [decks]);
+    const forecastMax = Math.max(1, ...forecast);
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-sec-head", style: { marginBottom: 6 }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-link", onClick: onBack, children: "\u2190 Home" }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-modes", style: { marginBottom: 30 }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-mode", style: { flex: "1 1 140px" }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: allCards.length }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "total cards" })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-mode", style: { flex: "1 1 140px" }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: totalDue }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "due today" })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-mode", style: { flex: "1 1 140px" }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("strong", { children: [
+            overallRetention,
+            "%"
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "overall retention" })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-mode", style: { flex: "1 1 140px" }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { style: { color: leechCount ? "var(--rose)" : void 0 }, children: leechCount }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "leeches" })
+        ] })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-sec-head", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", { children: "Reviews due, next 30 days" }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-panel", style: { marginBottom: 30 }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", alignItems: "flex-end", gap: 3, height: 120 }, children: forecast.map((n, i) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+          "div",
+          {
+            title: `${i === 0 ? "Today" : `+${i}d`}: ${n} cards`,
+            style: {
+              flex: 1,
+              minWidth: 4,
+              height: `${Math.max(2, n / forecastMax * 100)}%`,
+              background: i === 0 ? "var(--hl)" : "var(--teal)",
+              borderRadius: "2px 2px 0 0"
+            }
+          },
+          i
+        )) }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-note", style: { marginTop: 10 }, children: "Today \xB7 +30 days \u2192" })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-sec-head", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", { children: "Retention by tag" }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-panel", children: byTag.map(({ tag, cards, retention, due }) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "ss-note", style: { minWidth: 130 }, children: tag === "untagged" ? "untagged" : `#${tag}` }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-bar", style: { flex: 1 }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("i", { style: { width: `${retention * 100}%` } }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "ss-count", children: [
+          Math.round(retention * 100),
+          "% \xB7 ",
+          cards.length,
+          " cards",
+          due ? `, ${due} due` : ""
+        ] })
+      ] }, tag)) })
+    ] });
+  }
   function NewDeckSheet({ onClose, onCreate }) {
     const [title, setTitle] = (0, import_react.useState)("");
     const [subject, setSubject] = (0, import_react.useState)("");
@@ -26457,6 +26543,7 @@ Photosynthesis              <- definition list
     const [view, setView] = (0, import_react.useState)({ screen: "home" });
     const [sheet, setSheet] = (0, import_react.useState)(null);
     const [status, setStatus] = (0, import_react.useState)("loading");
+    const [search, setSearch] = (0, import_react.useState)("");
     const [dark, setDark] = (0, import_react.useState)(() => localStorage.getItem("studystack:theme") === "dark");
     const first = (0, import_react.useRef)(true);
     (0, import_react.useEffect)(() => {
@@ -26535,6 +26622,16 @@ Photosynthesis              <- definition list
       (decks || []).forEach((d) => d.cards.forEach((c) => cardTags(c).forEach((t) => s.add(t))));
       return [...s].sort();
     }, [decks]);
+    const searchResults = (0, import_react.useMemo)(() => {
+      const q = search.trim().toLowerCase();
+      if (!q || !decks) return null;
+      const out = [];
+      decks.forEach((d) => d.cards.forEach((c) => {
+        const hay = `${c.term} ${c.def} ${cardTags(c).join(" ")}`.toLowerCase();
+        if (hay.includes(q)) out.push({ card: c, deckId: d.id, deckTitle: d.title });
+      }));
+      return out.slice(0, 100);
+    }, [search, decks]);
     const exportAll = () => {
       const blob = new Blob([JSON.stringify({ decks, bests }, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
@@ -26581,9 +26678,10 @@ Photosynthesis              <- definition list
             "StudyStack"
           ] }),
           view.screen !== "home" ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-link", onClick: () => setView({ screen: "home" }), children: "\u2190 Home" }) : null,
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "ss-crumb", children: view.screen === "home" ? `${decks.length} decks` : view.screen === "deck" ? deck?.title : `${studyDeck?.title || ""} \xB7 ${view.mode}` }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "ss-crumb", children: view.screen === "home" ? `${decks.length} decks` : view.screen === "stats" ? "Stats" : view.screen === "deck" ? deck?.title : `${studyDeck?.title || ""} \xB7 ${view.mode}` }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "ss-spacer" }),
           status === "nosave" ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "ss-crumb", style: { color: "var(--rose)" }, children: "Not saving \u2014 storage unavailable" }) : null,
+          view.screen !== "stats" ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-link", onClick: () => setView({ screen: "stats" }), children: "\u{1F4CA} Stats" }) : null,
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn sm ghost", onClick: () => setDark((d) => !d), "aria-label": "Toggle dark mode", children: dark ? "\u2600\uFE0F Light" : "\u{1F319} Dark" })
         ] }),
         view.screen === "home" ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
@@ -26612,59 +26710,99 @@ Photosynthesis              <- definition list
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-sec-head", children: [
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", { children: "Your decks" }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "ss-spacer" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+              "input",
+              {
+                className: "ss-field",
+                style: { marginBottom: 0, width: 220 },
+                placeholder: "Search all cards\u2026",
+                "aria-label": "Search all cards",
+                value: search,
+                onChange: (e) => setSearch(e.target.value)
+              }
+            ),
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn sm", onClick: () => setSheet("import"), children: "Import .md" }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn sm hl", onClick: () => setSheet("newdeck"), children: "New deck" })
           ] }),
-          decks.length ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-grid", children: decks.map((d) => {
-            const due = dueCount(d);
-            return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { className: "ss-deck", onClick: () => setView({ screen: "deck", deckId: d.id }), children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-deck-top", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { children: d.title }),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-sub", children: d.subject || "No subject" })
-              ] }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-deck-body", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-bar", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("i", { style: { width: `${mastery(d) * 100}%` } }) }),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-meta", children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("b", { children: d.cards.length }),
-                    " cards"
-                  ] }),
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("b", { children: [
-                      Math.round(mastery(d) * 100),
-                      "%"
+          searchResults ? searchResults.length ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-rows", children: searchResults.map(({ card, deckId, deckTitle }) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+            "button",
+            {
+              className: "ss-row",
+              style: { width: "100%", textAlign: "left", cursor: "pointer" },
+              onClick: () => setView({ screen: "deck", deckId }),
+              children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-row-main", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-row-n" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-cell term", style: { fontWeight: 600 }, children: card.term }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-cell def", children: card.def }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {})
+                ] }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-row-meta", children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "ss-note", children: [
+                  "in ",
+                  deckTitle
+                ] }) })
+              ]
+            },
+            card.id
+          )) }) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-empty", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { children: "No matches" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { children: [
+              'Nothing in any deck matches "',
+              search,
+              '".'
+            ] })
+          ] }) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+            decks.length ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-grid", children: decks.map((d) => {
+              const due = dueCount(d);
+              return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { className: "ss-deck", onClick: () => setView({ screen: "deck", deckId: d.id }), children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-deck-top", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { children: d.title }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-sub", children: d.subject || "No subject" })
+                ] }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-deck-body", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-bar", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("i", { style: { width: `${mastery(d) * 100}%` } }) }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-meta", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("b", { children: d.cards.length }),
+                      " cards"
                     ] }),
-                    " mastered"
-                  ] }),
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "ss-spacer" }),
-                  due ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "ss-due-dot", children: [
-                    due,
-                    " due"
-                  ] }) : null
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("b", { children: [
+                        Math.round(mastery(d) * 100),
+                        "%"
+                      ] }),
+                      " mastered"
+                    ] }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "ss-spacer" }),
+                    due ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "ss-due-dot", children: [
+                      due,
+                      " due"
+                    ] }) : null
+                  ] })
                 ] })
-              ] })
-            ] }, d.id);
-          }) }) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-empty", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { children: "No decks yet" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "Start with the thing you're most behind on." }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn hl", onClick: () => setSheet("newdeck"), children: "New deck" })
+              ] }, d.id);
+            }) }) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-empty", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { children: "No decks yet" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "Start with the thing you're most behind on." }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn hl", onClick: () => setSheet("newdeck"), children: "New deck" })
+            ] }),
+            allTags.length ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-sec-head", style: { marginTop: 34 }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", { children: "Study by tag" }) }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "ss-note", style: { marginBottom: 10 }, children: "Pulls matching cards from every deck at once." }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-chips", children: allTags.map((t) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+                "button",
+                {
+                  className: "ss-chip",
+                  onClick: () => setView({ screen: "study", mode: "flashcards", tag: t }),
+                  children: [
+                    "#",
+                    t
+                  ]
+                },
+                t
+              )) })
+            ] }) : null
           ] }),
-          allTags.length ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-sec-head", style: { marginTop: 34 }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", { children: "Study by tag" }) }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "ss-note", style: { marginBottom: 10 }, children: "Pulls matching cards from every deck at once." }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-chips", children: allTags.map((t) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-              "button",
-              {
-                className: "ss-chip",
-                onClick: () => setView({ screen: "study", mode: "flashcards", tag: t }),
-                children: [
-                  "#",
-                  t
-                ]
-              },
-              t
-            )) })
-          ] }) : null,
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { className: "ss-note", style: { marginTop: 34 }, children: [
             "Decks persist between sessions.",
             " ",
@@ -26678,6 +26816,7 @@ Photosynthesis              <- definition list
             }, children: "Erase all decks" })
           ] })
         ] }) : null,
+        view.screen === "stats" ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(StatsView, { decks, onBack: () => setView({ screen: "home" }) }) : null,
         view.screen === "deck" && deck ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
           DeckDetail,
           {

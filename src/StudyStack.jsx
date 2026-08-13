@@ -510,6 +510,24 @@ function isReversedFor(card, direction) {
 }
 const mastery = (d) =>
   d.cards.length ? d.cards.reduce((s, c) => s + Math.min(c.srs.stability / 21, 1), 0) / d.cards.length : 0;
+const retentionOf = (cards) =>
+  cards.length ? cards.reduce((s, c) => s + Math.min(c.srs.stability / 21, 1), 0) / cards.length : 0;
+
+// Reviews due over the next N days, bucketed by calendar day (overdue cards
+// fold into "today" rather than a negative bucket).
+function dueForecast(decks, days = 30) {
+  const buckets = new Array(days).fill(0);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const todayMs = today.getTime();
+  decks.forEach((d) => d.cards.forEach((c) => {
+    const due = new Date(c.srs.due);
+    due.setHours(0, 0, 0, 0);
+    const diff = Math.round((due.getTime() - todayMs) / DAY);
+    buckets[Math.min(Math.max(diff, 0), days - 1)] += 1;
+  }));
+  return buckets;
+}
 
 function humanGap(ms) {
   const days = ms / DAY;
@@ -1821,6 +1839,77 @@ function ImportSheet({ deck, onClose, onAppend, onCreate }) {
 }
 
 
+function StatsView({ decks, onBack }) {
+  const allCards = useMemo(() => decks.flatMap((d) => d.cards), [decks]);
+  const totalDue = allCards.filter(isDue).length;
+  const leechCount = allCards.filter(isLeech).length;
+  const overallRetention = Math.round(retentionOf(allCards) * 100);
+
+  const byTag = useMemo(() => {
+    const m = {};
+    allCards.forEach((c) => {
+      const tags = cardTags(c).length ? cardTags(c) : ["untagged"];
+      tags.forEach((t) => {
+        (m[t] = m[t] || []).push(c);
+      });
+    });
+    return Object.entries(m)
+      .map(([tag, cards]) => ({ tag, cards, retention: retentionOf(cards), due: cards.filter(isDue).length }))
+      .sort((a, b) => b.cards.length - a.cards.length);
+  }, [allCards]);
+
+  const forecast = useMemo(() => dueForecast(decks, 30), [decks]);
+  const forecastMax = Math.max(1, ...forecast);
+
+  return (
+    <>
+      <div className="ss-sec-head" style={{ marginBottom: 6 }}>
+        <button className="ss-link" onClick={onBack}>← Home</button>
+      </div>
+
+      <div className="ss-modes" style={{ marginBottom: 30 }}>
+        <div className="ss-mode" style={{ flex: "1 1 140px" }}>
+          <strong>{allCards.length}</strong><span>total cards</span>
+        </div>
+        <div className="ss-mode" style={{ flex: "1 1 140px" }}>
+          <strong>{totalDue}</strong><span>due today</span>
+        </div>
+        <div className="ss-mode" style={{ flex: "1 1 140px" }}>
+          <strong>{overallRetention}%</strong><span>overall retention</span>
+        </div>
+        <div className="ss-mode" style={{ flex: "1 1 140px" }}>
+          <strong style={{ color: leechCount ? "var(--rose)" : undefined }}>{leechCount}</strong><span>leeches</span>
+        </div>
+      </div>
+
+      <div className="ss-sec-head"><h2>Reviews due, next 30 days</h2></div>
+      <div className="ss-panel" style={{ marginBottom: 30 }}>
+        <div style={{ display: "flex", alignItems: "flex-end", gap: 3, height: 120 }}>
+          {forecast.map((n, i) => (
+            <div key={i} title={`${i === 0 ? "Today" : `+${i}d`}: ${n} cards`}
+              style={{
+                flex: 1, minWidth: 4, height: `${Math.max(2, (n / forecastMax) * 100)}%`,
+                background: i === 0 ? "var(--hl)" : "var(--teal)", borderRadius: "2px 2px 0 0",
+              }} />
+          ))}
+        </div>
+        <div className="ss-note" style={{ marginTop: 10 }}>Today · +30 days →</div>
+      </div>
+
+      <div className="ss-sec-head"><h2>Retention by tag</h2></div>
+      <div className="ss-panel">
+        {byTag.map(({ tag, cards, retention, due }) => (
+          <div key={tag} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+            <span className="ss-note" style={{ minWidth: 130 }}>{tag === "untagged" ? "untagged" : `#${tag}`}</span>
+            <div className="ss-bar" style={{ flex: 1 }}><i style={{ width: `${retention * 100}%` }} /></div>
+            <span className="ss-count">{Math.round(retention * 100)}% · {cards.length} cards{due ? `, ${due} due` : ""}</span>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
+
 function NewDeckSheet({ onClose, onCreate }) {
   const [title, setTitle] = useState("");
   const [subject, setSubject] = useState("");
@@ -1851,6 +1940,7 @@ export default function StudyStack() {
   const [view, setView] = useState({ screen: "home" });
   const [sheet, setSheet] = useState(null);
   const [status, setStatus] = useState("loading");
+  const [search, setSearch] = useState("");
   const [dark, setDark] = useState(() => localStorage.getItem("studystack:theme") === "dark");
   const first = useRef(true);
 
@@ -1940,6 +2030,17 @@ export default function StudyStack() {
     return [...s].sort();
   }, [decks]);
 
+  const searchResults = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q || !decks) return null;
+    const out = [];
+    decks.forEach((d) => d.cards.forEach((c) => {
+      const hay = `${c.term} ${c.def} ${cardTags(c).join(" ")}`.toLowerCase();
+      if (hay.includes(q)) out.push({ card: c, deckId: d.id, deckTitle: d.title });
+    }));
+    return out.slice(0, 100);
+  }, [search, decks]);
+
   const exportAll = () => {
     const blob = new Blob([JSON.stringify({ decks, bests }, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -1996,11 +2097,15 @@ export default function StudyStack() {
           ) : null}
           <span className="ss-crumb">
             {view.screen === "home" ? `${decks.length} decks`
+              : view.screen === "stats" ? "Stats"
               : view.screen === "deck" ? deck?.title
               : `${studyDeck?.title || ""} · ${view.mode}`}
           </span>
           <span className="ss-spacer" />
           {status === "nosave" ? <span className="ss-crumb" style={{ color: "var(--rose)" }}>Not saving — storage unavailable</span> : null}
+          {view.screen !== "stats" ? (
+            <button className="ss-link" onClick={() => setView({ screen: "stats" })}>📊 Stats</button>
+          ) : null}
           <button className="ss-btn sm ghost" onClick={() => setDark((d) => !d)} aria-label="Toggle dark mode">
             {dark ? "☀️ Light" : "🌙 Dark"}
           </button>
@@ -2023,57 +2128,82 @@ export default function StudyStack() {
             <div className="ss-sec-head">
               <h2>Your decks</h2>
               <span className="ss-spacer" />
+              <input className="ss-field" style={{ marginBottom: 0, width: 220 }} placeholder="Search all cards…"
+                aria-label="Search all cards" value={search} onChange={(e) => setSearch(e.target.value)} />
               <button className="ss-btn sm" onClick={() => setSheet("import")}>Import .md</button>
               <button className="ss-btn sm hl" onClick={() => setSheet("newdeck")}>New deck</button>
             </div>
 
-            {decks.length ? (
-              <div className="ss-grid">
-                {decks.map((d) => {
-                  const due = dueCount(d);
-                  return (
-                    <button key={d.id} className="ss-deck" onClick={() => setView({ screen: "deck", deckId: d.id })}>
-                      <div className="ss-deck-top">
-                        <h3>{d.title}</h3>
-                        <div className="ss-sub">{d.subject || "No subject"}</div>
+            {searchResults ? (
+              searchResults.length ? (
+                <div className="ss-rows">
+                  {searchResults.map(({ card, deckId, deckTitle }) => (
+                    <button key={card.id} className="ss-row" style={{ width: "100%", textAlign: "left", cursor: "pointer" }}
+                      onClick={() => setView({ screen: "deck", deckId })}>
+                      <div className="ss-row-main">
+                        <div className="ss-row-n" />
+                        <div className="ss-cell term" style={{ fontWeight: 600 }}>{card.term}</div>
+                        <div className="ss-cell def">{card.def}</div>
+                        <span />
                       </div>
-                      <div className="ss-deck-body">
-                        <div className="ss-bar"><i style={{ width: `${mastery(d) * 100}%` }} /></div>
-                        <div className="ss-meta">
-                          <span><b>{d.cards.length}</b> cards</span>
-                          <span><b>{Math.round(mastery(d) * 100)}%</b> mastered</span>
-                          <span className="ss-spacer" />
-                          {due ? <span className="ss-due-dot">{due} due</span> : null}
-                        </div>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="ss-empty">
-                <h3>No decks yet</h3>
-                <p>Start with the thing you're most behind on.</p>
-                <button className="ss-btn hl" onClick={() => setSheet("newdeck")}>New deck</button>
-              </div>
-            )}
-
-            {allTags.length ? (
-              <>
-                <div className="ss-sec-head" style={{ marginTop: 34 }}>
-                  <h2>Study by tag</h2>
-                </div>
-                <p className="ss-note" style={{ marginBottom: 10 }}>Pulls matching cards from every deck at once.</p>
-                <div className="ss-chips">
-                  {allTags.map((t) => (
-                    <button key={t} className="ss-chip"
-                      onClick={() => setView({ screen: "study", mode: "flashcards", tag: t })}>
-                      #{t}
+                      <div className="ss-row-meta"><span className="ss-note">in {deckTitle}</span></div>
                     </button>
                   ))}
                 </div>
+              ) : (
+                <div className="ss-empty"><h3>No matches</h3><p>Nothing in any deck matches "{search}".</p></div>
+              )
+            ) : (
+              <>
+                {decks.length ? (
+                  <div className="ss-grid">
+                    {decks.map((d) => {
+                      const due = dueCount(d);
+                      return (
+                        <button key={d.id} className="ss-deck" onClick={() => setView({ screen: "deck", deckId: d.id })}>
+                          <div className="ss-deck-top">
+                            <h3>{d.title}</h3>
+                            <div className="ss-sub">{d.subject || "No subject"}</div>
+                          </div>
+                          <div className="ss-deck-body">
+                            <div className="ss-bar"><i style={{ width: `${mastery(d) * 100}%` }} /></div>
+                            <div className="ss-meta">
+                              <span><b>{d.cards.length}</b> cards</span>
+                              <span><b>{Math.round(mastery(d) * 100)}%</b> mastered</span>
+                              <span className="ss-spacer" />
+                              {due ? <span className="ss-due-dot">{due} due</span> : null}
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="ss-empty">
+                    <h3>No decks yet</h3>
+                    <p>Start with the thing you're most behind on.</p>
+                    <button className="ss-btn hl" onClick={() => setSheet("newdeck")}>New deck</button>
+                  </div>
+                )}
+
+                {allTags.length ? (
+                  <>
+                    <div className="ss-sec-head" style={{ marginTop: 34 }}>
+                      <h2>Study by tag</h2>
+                    </div>
+                    <p className="ss-note" style={{ marginBottom: 10 }}>Pulls matching cards from every deck at once.</p>
+                    <div className="ss-chips">
+                      {allTags.map((t) => (
+                        <button key={t} className="ss-chip"
+                          onClick={() => setView({ screen: "study", mode: "flashcards", tag: t })}>
+                          #{t}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                ) : null}
               </>
-            ) : null}
+            )}
 
             <p className="ss-note" style={{ marginTop: 34 }}>
               Decks persist between sessions.{" "}
@@ -2084,6 +2214,10 @@ export default function StudyStack() {
               </button>
             </p>
           </>
+        ) : null}
+
+        {view.screen === "stats" ? (
+          <StatsView decks={decks} onBack={() => setView({ screen: "home" })} />
         ) : null}
 
         {view.screen === "deck" && deck ? (
