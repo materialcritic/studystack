@@ -170,13 +170,37 @@ const CSS = `
 .ss-cell.term { font-weight: 600; }
 .ss-x { color: var(--ink-soft); font-size: 17px; line-height: 1; padding: 2px 4px; }
 .ss-x:hover { color: var(--rose); }
+.ss-row-meta {
+  display: flex; align-items: center; gap: 12px; margin-top: 6px; margin-left: 46px;
+  max-width: calc(100% - 46px);
+}
 .ss-tag-input {
-  display: block; width: 100%; margin-top: 6px; margin-left: 46px; max-width: calc(100% - 46px);
-  border: none; background: transparent; font-family: var(--mono); font-size: 11.5px;
+  flex: 1; border: none; background: transparent; font-family: var(--mono); font-size: 11.5px;
   color: var(--ink-soft); padding: 2px 0;
 }
 .ss-tag-input::placeholder { color: var(--placeholder); }
 .ss-tag-input:focus { color: var(--ink); outline: none; }
+.ss-type-select {
+  flex: 0 0 auto; border: 1px solid var(--rule); border-radius: 3px; background: var(--card);
+  font-family: var(--mono); font-size: 11px; color: var(--ink-soft); padding: 3px 6px;
+}
+.ss-mcq-editor {
+  margin: 10px 0 0 46px; max-width: calc(100% - 46px); padding: 10px 12px;
+  border: 1px solid var(--rule); border-radius: 4px; background: var(--paper);
+  display: flex; flex-direction: column; gap: 7px;
+}
+.ss-mcq-opt { display: flex; align-items: flex-start; gap: 8px; }
+.ss-mcq-opt input[type="radio"] { margin-top: 6px; flex: 0 0 auto; accent-color: var(--teal); }
+.ss-mcq-opt-input {
+  flex: 1; border: none; background: transparent; resize: none; overflow: hidden;
+  font-size: 13.5px; line-height: 1.4; padding: 2px 0;
+}
+.ss-mcq-opt-input::placeholder { color: var(--placeholder); }
+.ss-mcq-explain {
+  border: none; border-top: 1px solid var(--rule); background: transparent; resize: none; overflow: hidden;
+  font-family: var(--mono); font-size: 11.5px; color: var(--ink-soft); padding: 8px 0 0; margin-top: 3px;
+}
+.ss-mcq-explain::placeholder { color: var(--placeholder); }
 .ss-chips { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 .ss-chip {
   font-family: var(--mono); font-size: 11.5px; border: 1.2px solid var(--rule); border-radius: 99px;
@@ -363,7 +387,8 @@ const CSS = `
   .ss-grades { grid-template-columns: repeat(2, 1fr); }
   .ss-row-main { grid-template-columns: 22px 1fr 26px; }
   .ss-row-main .ss-cell.def { grid-column: 2 / 3; }
-  .ss-tag-input { margin-left: 34px; max-width: calc(100% - 34px); }
+  .ss-row-meta { margin-left: 34px; max-width: calc(100% - 34px); flex-wrap: wrap; }
+  .ss-mcq-editor { margin-left: 34px; max-width: calc(100% - 34px); }
   .ss-today { padding: 20px; }
   .ss-pile { display: none; }
 }
@@ -379,7 +404,22 @@ const uid = () => Math.random().toString(36).slice(2, 10);
 
 const freshSrs = () => ({ due: 0, stability: 0, difficulty: 5, reps: 0, lapses: 0 });
 
-const mkCard = (term, def) => ({ id: uid(), term, def, tags: [], srs: freshSrs() });
+const mkCard = (term, def) => ({ id: uid(), term, def, tags: [], type: "basic", options: [], answer: null, explanation: "", srs: freshSrs() });
+
+const ASSERTION_CODES = [
+  "Both (A) and (R) are true and (R) is the correct explanation of (A)",
+  "Both (A) and (R) are true but (R) is not the correct explanation of (A)",
+  "(A) is true but (R) is false",
+  "(A) is false but (R) is true",
+];
+
+// A card counts as authored-MCQ only once it actually has >=2 non-empty
+// options and a valid answer index — otherwise Test falls back to generating
+// distractors, same as a plain basic card.
+const hasAuthoredOptions = (c) =>
+  (c.type === "mcq" || c.type === "assertion") &&
+  (c.options || []).filter((o) => o && o.trim()).length >= 2 &&
+  c.answer != null && c.options[c.answer] && c.options[c.answer].trim();
 const cardTags = (c) => c.tags || [];
 
 const SEED = [];
@@ -922,24 +962,34 @@ function Test({ deck, onExit, onGrade, backLabel = "Back to deck" }) {
   const questions = useMemo(() => {
     const picked = shuffle(deck.cards).slice(0, size);
     return picked.map((c, i) => {
+      if (hasAuthoredOptions(c)) {
+        return {
+          card: c,
+          type: c.type === "assertion" ? "assertion" : "mc",
+          options: shuffle(c.options.filter((o) => o && o.trim())),
+          correctText: c.options[c.answer],
+        };
+      }
       const canMC = deck.cards.length >= 4;
       const type = canMC && i % 2 === 0 ? "mc" : "written";
       if (type === "mc") {
         const wrong = shuffle(deck.cards.filter((x) => x.id !== c.id)).slice(0, 3).map((x) => x.def);
-        return { card: c, type, options: shuffle([c.def, ...wrong]) };
+        return { card: c, type, options: shuffle([c.def, ...wrong]), correctText: c.def };
       }
-      return { card: c, type };
+      return { card: c, type, correctText: c.def };
     });
   }, [deck.cards, size]);
 
   const [answers, setAnswers] = useState({});
   const [graded, setGraded] = useState(false);
 
+  const isMC = (t) => t === "mc" || t === "assertion";
+
   const results = useMemo(() => {
     if (!graded) return null;
     return questions.map((q) => {
       const a = answers[q.card.id] || "";
-      const ok = q.type === "mc" ? a === q.card.def : checkAnswer(a, q.card.def);
+      const ok = isMC(q.type) ? a === q.correctText : checkAnswer(a, q.correctText);
       return { ...q, given: a, ok };
     });
   }, [graded, questions, answers]);
@@ -947,7 +997,7 @@ function Test({ deck, onExit, onGrade, backLabel = "Back to deck" }) {
   const submit = () => {
     questions.forEach((q) => {
       const a = answers[q.card.id] || "";
-      const ok = q.type === "mc" ? a === q.card.def : checkAnswer(a, q.card.def);
+      const ok = isMC(q.type) ? a === q.correctText : checkAnswer(a, q.correctText);
       onGrade(q.card.id, ok ? 3 : 1);
     });
     setGraded(true);
@@ -974,16 +1024,16 @@ function Test({ deck, onExit, onGrade, backLabel = "Back to deck" }) {
         {(results || questions).map((q, i) => (
           <div className="ss-q" key={q.card.id}>
             <div className="ss-q-h">
-              {String(i + 1).padStart(2, "0")} · {q.type === "mc" ? "Multiple choice" : "Written"}
+              {String(i + 1).padStart(2, "0")} · {q.type === "assertion" ? "Assertion–Reason" : q.type === "mc" ? "Multiple choice" : "Written"}
               {results ? <> · <span className={`ss-tag ${q.ok ? "ok" : "no"}`}>{q.ok ? "Correct" : "Missed"}</span></> : null}
             </div>
             <p className="ss-q-p">{q.card.term}</p>
-            {q.type === "mc" ? (
+            {isMC(q.type) ? (
               <div className="ss-opts">
                 {q.options.map((o, j) => {
                   let cls = "ss-opt";
                   if (results) {
-                    if (o === q.card.def) cls += " right";
+                    if (o === q.correctText) cls += " right";
                     else if (o === q.given) cls += " wrong";
                   } else if (answers[q.card.id] === o) cls += " on";
                   return (
@@ -996,7 +1046,7 @@ function Test({ deck, onExit, onGrade, backLabel = "Back to deck" }) {
               </div>
             ) : results ? (
               <>
-                <p className="ss-ans">{q.card.def}</p>
+                <p className="ss-ans">{q.correctText}</p>
                 <div className="ss-you">you wrote {q.given ? (q.ok ? q.given : <s>{q.given}</s>) : "— blank —"}</div>
               </>
             ) : (
@@ -1004,6 +1054,7 @@ function Test({ deck, onExit, onGrade, backLabel = "Back to deck" }) {
                 value={answers[q.card.id] || ""}
                 onChange={(e) => setAnswers((a) => ({ ...a, [q.card.id]: e.target.value }))} />
             )}
+            {results && q.card.explanation ? <p className="ss-note" style={{ marginTop: 10 }}>{q.card.explanation}</p> : null}
           </div>
         ))}
       </div>
@@ -1141,6 +1192,19 @@ function DeckDetail({ deck, onOpen, onPatch, onDelete, onBack, onImport }) {
   const setCard = (cid, field, value) =>
     onPatch({ ...deck, cards: deck.cards.map((c) => (c.id === cid ? { ...c, [field]: value } : c)) });
 
+  const setType = (c, type) => {
+    const patch = { type };
+    if (type === "assertion" && !(c.options || []).some((o) => o && o.trim())) patch.options = [...ASSERTION_CODES];
+    else if (type === "mcq" && !(c.options || []).length) patch.options = ["", "", "", ""];
+    onPatch({ ...deck, cards: deck.cards.map((x) => (x.id === c.id ? { ...x, ...patch } : x)) });
+  };
+
+  const setOption = (c, idx, value) => {
+    const opts = (c.options && c.options.length ? [...c.options] : ["", "", "", ""]);
+    opts[idx] = value;
+    setCard(c.id, "options", opts);
+  };
+
   return (
     <>
       <div className="ss-sec-head" style={{ marginBottom: 6 }}>
@@ -1198,9 +1262,34 @@ function DeckDetail({ deck, onOpen, onPatch, onDelete, onBack, onImport }) {
                 <button className="ss-x" aria-label={`Delete card ${i + 1}`}
                   onClick={() => onPatch({ ...deck, cards: deck.cards.filter((x) => x.id !== c.id) })}>×</button>
               </div>
-              <input className="ss-tag-input" placeholder="tags, comma separated" value={cardTags(c).join(", ")}
-                aria-label={`Tags for card ${i + 1}`}
-                onChange={(e) => setCard(c.id, "tags", e.target.value.split(",").map((t) => t.trim()).filter(Boolean))} />
+              <div className="ss-row-meta">
+                <input className="ss-tag-input" placeholder="tags, comma separated" value={cardTags(c).join(", ")}
+                  aria-label={`Tags for card ${i + 1}`}
+                  onChange={(e) => setCard(c.id, "tags", e.target.value.split(",").map((t) => t.trim()).filter(Boolean))} />
+                <select className="ss-type-select" value={c.type || "basic"} aria-label={`Type for card ${i + 1}`}
+                  onChange={(e) => setType(c, e.target.value)}>
+                  <option value="basic">Basic</option>
+                  <option value="mcq">Multiple choice</option>
+                  <option value="assertion">Assertion–Reason</option>
+                </select>
+              </div>
+              {c.type === "mcq" || c.type === "assertion" ? (
+                <div className="ss-mcq-editor">
+                  {(c.options && c.options.length ? c.options : ["", "", "", ""]).map((opt, oi) => (
+                    <label className="ss-mcq-opt" key={oi}>
+                      <input type="radio" name={`answer-${c.id}`} checked={c.answer === oi}
+                        aria-label={`Mark option ${oi + 1} correct for card ${i + 1}`}
+                        onChange={() => setCard(c.id, "answer", oi)} />
+                      <textarea className="ss-mcq-opt-input" rows={1} value={opt} placeholder={`Option ${oi + 1}`}
+                        aria-label={`Option ${oi + 1} for card ${i + 1}`}
+                        onChange={(e) => setOption(c, oi, e.target.value)} />
+                    </label>
+                  ))}
+                  <textarea className="ss-mcq-explain" rows={1} placeholder="Explanation (optional, shown after grading)"
+                    value={c.explanation || ""} aria-label={`Explanation for card ${i + 1}`}
+                    onChange={(e) => setCard(c.id, "explanation", e.target.value)} />
+                </div>
+              ) : null}
             </div>
           ))}
         </div>

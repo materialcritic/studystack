@@ -24656,13 +24656,37 @@
 .ss-cell.term { font-weight: 600; }
 .ss-x { color: var(--ink-soft); font-size: 17px; line-height: 1; padding: 2px 4px; }
 .ss-x:hover { color: var(--rose); }
+.ss-row-meta {
+  display: flex; align-items: center; gap: 12px; margin-top: 6px; margin-left: 46px;
+  max-width: calc(100% - 46px);
+}
 .ss-tag-input {
-  display: block; width: 100%; margin-top: 6px; margin-left: 46px; max-width: calc(100% - 46px);
-  border: none; background: transparent; font-family: var(--mono); font-size: 11.5px;
+  flex: 1; border: none; background: transparent; font-family: var(--mono); font-size: 11.5px;
   color: var(--ink-soft); padding: 2px 0;
 }
 .ss-tag-input::placeholder { color: var(--placeholder); }
 .ss-tag-input:focus { color: var(--ink); outline: none; }
+.ss-type-select {
+  flex: 0 0 auto; border: 1px solid var(--rule); border-radius: 3px; background: var(--card);
+  font-family: var(--mono); font-size: 11px; color: var(--ink-soft); padding: 3px 6px;
+}
+.ss-mcq-editor {
+  margin: 10px 0 0 46px; max-width: calc(100% - 46px); padding: 10px 12px;
+  border: 1px solid var(--rule); border-radius: 4px; background: var(--paper);
+  display: flex; flex-direction: column; gap: 7px;
+}
+.ss-mcq-opt { display: flex; align-items: flex-start; gap: 8px; }
+.ss-mcq-opt input[type="radio"] { margin-top: 6px; flex: 0 0 auto; accent-color: var(--teal); }
+.ss-mcq-opt-input {
+  flex: 1; border: none; background: transparent; resize: none; overflow: hidden;
+  font-size: 13.5px; line-height: 1.4; padding: 2px 0;
+}
+.ss-mcq-opt-input::placeholder { color: var(--placeholder); }
+.ss-mcq-explain {
+  border: none; border-top: 1px solid var(--rule); background: transparent; resize: none; overflow: hidden;
+  font-family: var(--mono); font-size: 11.5px; color: var(--ink-soft); padding: 8px 0 0; margin-top: 3px;
+}
+.ss-mcq-explain::placeholder { color: var(--placeholder); }
 .ss-chips { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 .ss-chip {
   font-family: var(--mono); font-size: 11.5px; border: 1.2px solid var(--rule); border-radius: 99px;
@@ -24849,7 +24873,8 @@
   .ss-grades { grid-template-columns: repeat(2, 1fr); }
   .ss-row-main { grid-template-columns: 22px 1fr 26px; }
   .ss-row-main .ss-cell.def { grid-column: 2 / 3; }
-  .ss-tag-input { margin-left: 34px; max-width: calc(100% - 34px); }
+  .ss-row-meta { margin-left: 34px; max-width: calc(100% - 34px); flex-wrap: wrap; }
+  .ss-mcq-editor { margin-left: 34px; max-width: calc(100% - 34px); }
   .ss-today { padding: 20px; }
   .ss-pile { display: none; }
 }
@@ -24860,7 +24885,14 @@
   var DAY = 864e5;
   var uid = () => Math.random().toString(36).slice(2, 10);
   var freshSrs = () => ({ due: 0, stability: 0, difficulty: 5, reps: 0, lapses: 0 });
-  var mkCard = (term, def) => ({ id: uid(), term, def, tags: [], srs: freshSrs() });
+  var mkCard = (term, def) => ({ id: uid(), term, def, tags: [], type: "basic", options: [], answer: null, explanation: "", srs: freshSrs() });
+  var ASSERTION_CODES = [
+    "Both (A) and (R) are true and (R) is the correct explanation of (A)",
+    "Both (A) and (R) are true but (R) is not the correct explanation of (A)",
+    "(A) is true but (R) is false",
+    "(A) is false but (R) is true"
+  ];
+  var hasAuthoredOptions = (c) => (c.type === "mcq" || c.type === "assertion") && (c.options || []).filter((o) => o && o.trim()).length >= 2 && c.answer != null && c.options[c.answer] && c.options[c.answer].trim();
   var cardTags = (c) => c.tags || [];
   var SEED = [];
   var clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
@@ -25430,29 +25462,38 @@ ${c.def}
     const questions = (0, import_react.useMemo)(() => {
       const picked = shuffle(deck.cards).slice(0, size);
       return picked.map((c, i) => {
+        if (hasAuthoredOptions(c)) {
+          return {
+            card: c,
+            type: c.type === "assertion" ? "assertion" : "mc",
+            options: shuffle(c.options.filter((o) => o && o.trim())),
+            correctText: c.options[c.answer]
+          };
+        }
         const canMC = deck.cards.length >= 4;
         const type = canMC && i % 2 === 0 ? "mc" : "written";
         if (type === "mc") {
           const wrong = shuffle(deck.cards.filter((x) => x.id !== c.id)).slice(0, 3).map((x) => x.def);
-          return { card: c, type, options: shuffle([c.def, ...wrong]) };
+          return { card: c, type, options: shuffle([c.def, ...wrong]), correctText: c.def };
         }
-        return { card: c, type };
+        return { card: c, type, correctText: c.def };
       });
     }, [deck.cards, size]);
     const [answers, setAnswers] = (0, import_react.useState)({});
     const [graded, setGraded] = (0, import_react.useState)(false);
+    const isMC = (t) => t === "mc" || t === "assertion";
     const results = (0, import_react.useMemo)(() => {
       if (!graded) return null;
       return questions.map((q) => {
         const a = answers[q.card.id] || "";
-        const ok = q.type === "mc" ? a === q.card.def : checkAnswer(a, q.card.def);
+        const ok = isMC(q.type) ? a === q.correctText : checkAnswer(a, q.correctText);
         return { ...q, given: a, ok };
       });
     }, [graded, questions, answers]);
     const submit = () => {
       questions.forEach((q) => {
         const a = answers[q.card.id] || "";
-        const ok = q.type === "mc" ? a === q.card.def : checkAnswer(a, q.card.def);
+        const ok = isMC(q.type) ? a === q.correctText : checkAnswer(a, q.correctText);
         onGrade(q.card.id, ok ? 3 : 1);
       });
       setGraded(true);
@@ -25478,17 +25519,17 @@ ${c.def}
         /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-q-h", children: [
           String(i + 1).padStart(2, "0"),
           " \xB7 ",
-          q.type === "mc" ? "Multiple choice" : "Written",
+          q.type === "assertion" ? "Assertion\u2013Reason" : q.type === "mc" ? "Multiple choice" : "Written",
           results ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
             " \xB7 ",
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: `ss-tag ${q.ok ? "ok" : "no"}`, children: q.ok ? "Correct" : "Missed" })
           ] }) : null
         ] }),
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "ss-q-p", children: q.card.term }),
-        q.type === "mc" ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-opts", children: q.options.map((o, j) => {
+        isMC(q.type) ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-opts", children: q.options.map((o, j) => {
           let cls = "ss-opt";
           if (results) {
-            if (o === q.card.def) cls += " right";
+            if (o === q.correctText) cls += " right";
             else if (o === q.given) cls += " wrong";
           } else if (answers[q.card.id] === o) cls += " on";
           return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
@@ -25505,7 +25546,7 @@ ${c.def}
             j
           );
         }) }) : results ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "ss-ans", children: q.card.def }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "ss-ans", children: q.correctText }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-you", children: [
             "you wrote ",
             q.given ? q.ok ? q.given : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("s", { children: q.given }) : "\u2014 blank \u2014"
@@ -25519,7 +25560,8 @@ ${c.def}
             value: answers[q.card.id] || "",
             onChange: (e) => setAnswers((a) => ({ ...a, [q.card.id]: e.target.value }))
           }
-        )
+        ),
+        results && q.card.explanation ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "ss-note", style: { marginTop: 10 }, children: q.card.explanation }) : null
       ] }, q.card.id)) }),
       !graded ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 10, flexWrap: "wrap" }, children: [
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn hl", onClick: submit, children: "Submit test" }),
@@ -25631,6 +25673,17 @@ ${c.def}
       setTimeout(() => setCopied(""), 2200);
     };
     const setCard = (cid, field, value) => onPatch({ ...deck, cards: deck.cards.map((c) => c.id === cid ? { ...c, [field]: value } : c) });
+    const setType = (c, type) => {
+      const patch = { type };
+      if (type === "assertion" && !(c.options || []).some((o) => o && o.trim())) patch.options = [...ASSERTION_CODES];
+      else if (type === "mcq" && !(c.options || []).length) patch.options = ["", "", "", ""];
+      onPatch({ ...deck, cards: deck.cards.map((x) => x.id === c.id ? { ...x, ...patch } : x) });
+    };
+    const setOption = (c, idx, value) => {
+      const opts = c.options && c.options.length ? [...c.options] : ["", "", "", ""];
+      opts[idx] = value;
+      setCard(c.id, "options", opts);
+    };
     return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-sec-head", style: { marginBottom: 6 }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-link", onClick: onBack, children: "\u2190 All decks" }) }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-today", style: { marginBottom: 24 }, children: [
@@ -25728,16 +25781,68 @@ ${c.def}
             }
           )
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-          "input",
-          {
-            className: "ss-tag-input",
-            placeholder: "tags, comma separated",
-            value: cardTags(c).join(", "),
-            "aria-label": `Tags for card ${i + 1}`,
-            onChange: (e) => setCard(c.id, "tags", e.target.value.split(",").map((t) => t.trim()).filter(Boolean))
-          }
-        )
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-row-meta", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+            "input",
+            {
+              className: "ss-tag-input",
+              placeholder: "tags, comma separated",
+              value: cardTags(c).join(", "),
+              "aria-label": `Tags for card ${i + 1}`,
+              onChange: (e) => setCard(c.id, "tags", e.target.value.split(",").map((t) => t.trim()).filter(Boolean))
+            }
+          ),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+            "select",
+            {
+              className: "ss-type-select",
+              value: c.type || "basic",
+              "aria-label": `Type for card ${i + 1}`,
+              onChange: (e) => setType(c, e.target.value),
+              children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "basic", children: "Basic" }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "mcq", children: "Multiple choice" }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "assertion", children: "Assertion\u2013Reason" })
+              ]
+            }
+          )
+        ] }),
+        c.type === "mcq" || c.type === "assertion" ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-mcq-editor", children: [
+          (c.options && c.options.length ? c.options : ["", "", "", ""]).map((opt, oi) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", { className: "ss-mcq-opt", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+              "input",
+              {
+                type: "radio",
+                name: `answer-${c.id}`,
+                checked: c.answer === oi,
+                "aria-label": `Mark option ${oi + 1} correct for card ${i + 1}`,
+                onChange: () => setCard(c.id, "answer", oi)
+              }
+            ),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+              "textarea",
+              {
+                className: "ss-mcq-opt-input",
+                rows: 1,
+                value: opt,
+                placeholder: `Option ${oi + 1}`,
+                "aria-label": `Option ${oi + 1} for card ${i + 1}`,
+                onChange: (e) => setOption(c, oi, e.target.value)
+              }
+            )
+          ] }, oi)),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+            "textarea",
+            {
+              className: "ss-mcq-explain",
+              rows: 1,
+              placeholder: "Explanation (optional, shown after grading)",
+              value: c.explanation || "",
+              "aria-label": `Explanation for card ${i + 1}`,
+              onChange: (e) => setCard(c.id, "explanation", e.target.value)
+            }
+          )
+        ] }) : null
       ] }, c.id)) }) : selectedTag ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-empty", children: [
         /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("h3", { children: [
           "No cards tagged #",
