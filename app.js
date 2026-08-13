@@ -24644,8 +24644,9 @@
 .ss-mode strong { font-family: var(--display); font-size: 16px; font-weight: 700; letter-spacing: -.02em; display: block; }
 .ss-mode span { font-size: 12px; color: var(--ink-soft); }
 .ss-rows { border: 1.5px solid var(--ink); border-radius: 4px; overflow: hidden; background: var(--card); }
-.ss-row { display: grid; grid-template-columns: 34px 1fr 1.4fr 30px; gap: 12px; align-items: start; padding: 12px 14px; border-bottom: 1px solid var(--rule); }
+.ss-row { padding: 12px 14px; border-bottom: 1px solid var(--rule); }
 .ss-row:last-child { border-bottom: none; }
+.ss-row-main { display: grid; grid-template-columns: 34px 1fr 1.4fr 30px; gap: 12px; align-items: start; }
 .ss-row-n { font-family: var(--mono); font-size: 11.5px; color: var(--ink-soft); padding-top: 3px; }
 .ss-cell {
   border: none; background: transparent; width: 100%; resize: none; overflow: hidden;
@@ -24655,6 +24656,20 @@
 .ss-cell.term { font-weight: 600; }
 .ss-x { color: var(--ink-soft); font-size: 17px; line-height: 1; padding: 2px 4px; }
 .ss-x:hover { color: var(--rose); }
+.ss-tag-input {
+  display: block; width: 100%; margin-top: 6px; margin-left: 46px; max-width: calc(100% - 46px);
+  border: none; background: transparent; font-family: var(--mono); font-size: 11.5px;
+  color: var(--ink-soft); padding: 2px 0;
+}
+.ss-tag-input::placeholder { color: var(--placeholder); }
+.ss-tag-input:focus { color: var(--ink); outline: none; }
+.ss-chips { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.ss-chip {
+  font-family: var(--mono); font-size: 11.5px; border: 1.2px solid var(--rule); border-radius: 99px;
+  padding: 4px 11px; color: var(--ink-soft); background: var(--card);
+}
+.ss-chip:hover { border-color: var(--ink); color: var(--ink); }
+.ss-chip.on { border-color: var(--ink); background: var(--hl); color: var(--ink); }
 
 /* ---------- study surface ---------- */
 .ss-study { display: flex; flex-direction: column; align-items: center; gap: 20px; }
@@ -24832,8 +24847,9 @@
 @media (max-width: 620px) {
   .ss-tiles { grid-template-columns: repeat(2, 1fr); }
   .ss-grades { grid-template-columns: repeat(2, 1fr); }
-  .ss-row { grid-template-columns: 22px 1fr 26px; }
-  .ss-row .ss-cell.def { grid-column: 2 / 3; }
+  .ss-row-main { grid-template-columns: 22px 1fr 26px; }
+  .ss-row-main .ss-cell.def { grid-column: 2 / 3; }
+  .ss-tag-input { margin-left: 34px; max-width: calc(100% - 34px); }
   .ss-today { padding: 20px; }
   .ss-pile { display: none; }
 }
@@ -24844,7 +24860,8 @@
   var DAY = 864e5;
   var uid = () => Math.random().toString(36).slice(2, 10);
   var freshSrs = () => ({ due: 0, stability: 0, difficulty: 5, reps: 0, lapses: 0 });
-  var mkCard = (term, def) => ({ id: uid(), term, def, srs: freshSrs() });
+  var mkCard = (term, def) => ({ id: uid(), term, def, tags: [], srs: freshSrs() });
+  var cardTags = (c) => c.tags || [];
   var SEED = [];
   var clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
   var FIRST = [0.5, 1.2, 3.2, 8];
@@ -25147,7 +25164,7 @@ ${c.def}
             role: "button",
             tabIndex: flipped ? -1 : 0,
             "aria-hidden": flipped,
-            inert: flipped,
+            inert: flipped ? "" : void 0,
             onKeyDown: (e) => {
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
@@ -25169,7 +25186,7 @@ ${c.def}
             role: "button",
             tabIndex: flipped ? 0 : -1,
             "aria-hidden": !flipped,
-            inert: !flipped,
+            inert: !flipped ? "" : void 0,
             onKeyDown: (e) => {
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
@@ -25205,7 +25222,7 @@ ${c.def}
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", gap: 10, justifyContent: "center", marginTop: 22, flexWrap: "wrap" }, children: actions })
     ] });
   }
-  function Flashcards({ deck, onExit, onGrade, onPatch }) {
+  function Flashcards({ deck, onExit, onGrade, onPatchCard, onDeleteCard, backLabel = "Back to deck" }) {
     const [queue, setQueue] = (0, import_react.useState)(() => shuffle(deck.cards));
     const [i, setI] = (0, import_react.useState)(0);
     const [flipped, setFlipped] = (0, import_react.useState)(false);
@@ -25228,15 +25245,15 @@ ${c.def}
         else s.delete(card.id);
         return s;
       });
-      onPatch({ ...deck, cards: deck.cards.map((c) => c.id === card.id ? { ...c, flagged: next } : c) });
-    }, [card, flagged, deck, onPatch]);
-    const deleteCard = (0, import_react.useCallback)(() => {
+      onPatchCard(card.id, { flagged: next });
+    }, [card, flagged, onPatchCard]);
+    const removeCard = (0, import_react.useCallback)(() => {
       if (!card) return;
       if (!confirm(`Delete "${card.term}"? This can't be undone.`)) return;
-      onPatch({ ...deck, cards: deck.cards.filter((c) => c.id !== card.id) });
+      onDeleteCard(card.id);
       setQueue((q) => q.filter((c) => c.id !== card.id));
       setFlipped(false);
-    }, [card, deck, onPatch]);
+    }, [card, onDeleteCard]);
     (0, import_react.useEffect)(() => {
       const h = (e) => {
         if (e.key === " ") {
@@ -25270,7 +25287,7 @@ ${c.def}
               setMissed([]);
               setI(0);
             }, children: "Shuffle all" }, "a"),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn ghost", onClick: onExit, children: "Back to deck" }, "e")
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn ghost", onClick: onExit, children: backLabel }, "e")
           ]
         }
       );
@@ -25290,7 +25307,7 @@ ${c.def}
         ),
         /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-side-actions", children: [
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: `ss-btn sm${flagged.has(card.id) ? " hl" : ""}`, onClick: toggleFlag, children: flagged.has(card.id) ? "\u{1F6A9} Flagged" : "\u{1F6A9} Flag" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn sm", onClick: deleteCard, children: "\u{1F5D1} Delete" })
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn sm", onClick: removeCard, children: "\u{1F5D1} Delete" })
         ] })
       ] }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-verdicts", children: [
@@ -25305,7 +25322,7 @@ ${c.def}
       ] })
     ] });
   }
-  function Match({ deck, onExit, best, onBest }) {
+  function Match({ deck, onExit, best, onBest, backLabel = "Back to deck" }) {
     const PAIRS = Math.min(6, deck.cards.length);
     const build = () => {
       const picked = shuffle(deck.cards).slice(0, PAIRS);
@@ -25364,7 +25381,7 @@ ${c.def}
               setSel(null);
               setMs(0);
             }, children: "Play again" }, "r"),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn ghost", onClick: onExit, children: "Back to deck" }, "e")
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn ghost", onClick: onExit, children: backLabel }, "e")
           ]
         }
       );
@@ -25400,7 +25417,7 @@ ${c.def}
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-link", onClick: onExit, children: "Leave game" })
     ] });
   }
-  function Test({ deck, onExit, onGrade }) {
+  function Test({ deck, onExit, onGrade, backLabel = "Back to deck" }) {
     const size = Math.min(10, deck.cards.length);
     const questions = (0, import_react.useMemo)(() => {
       const picked = shuffle(deck.cards).slice(0, size);
@@ -25447,7 +25464,7 @@ ${c.def}
             questions.length
           ] })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", gap: 10, justifyContent: "center", marginTop: 20, flexWrap: "wrap" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn hl", onClick: onExit, children: "Back to deck" }) })
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", gap: 10, justifyContent: "center", marginTop: 20, flexWrap: "wrap" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn hl", onClick: onExit, children: backLabel }) })
       ] }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Bar, { done: answered, total: questions.length }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-panel", children: (results || questions).map((q, i) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-q", children: [
         /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-q-h", children: [
@@ -25502,7 +25519,7 @@ ${c.def}
       ] }) : null
     ] });
   }
-  function Review({ deck, onExit, onGrade }) {
+  function Review({ deck, onExit, onGrade, backLabel = "Back to deck" }) {
     const [queue, setQueue] = (0, import_react.useState)(() => deck.cards.filter(isDue).map((c) => c.id));
     const [ahead, setAhead] = (0, import_react.useState)(false);
     const [shown, setShown] = (0, import_react.useState)(false);
@@ -25523,7 +25540,7 @@ ${c.def}
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "ss-note", children: Number.isFinite(soonest) ? `Next card comes back in ${humanGap(soonest - Date.now())}.` : "Study any mode to start the schedule." }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 10, justifyContent: "center", marginTop: 20, flexWrap: "wrap" }, children: [
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn hl", onClick: startAhead, children: "Study ahead anyway" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn ghost", onClick: onExit, children: "Back to deck" })
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn ghost", onClick: onExit, children: backLabel })
           ] })
         ] });
       }
@@ -25532,7 +25549,7 @@ ${c.def}
         {
           title: `${count}`,
           lines: [`Cards reviewed. Each one is scheduled for its next reappearance.`],
-          actions: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn hl", onClick: onExit, children: "Back to deck" }, "e")]
+          actions: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn hl", onClick: onExit, children: backLabel }, "e")]
         }
       );
     }
@@ -25573,6 +25590,16 @@ ${c.def}
     const pct = Math.round(mastery(deck) * 100);
     const due = dueCount(deck);
     const [copied, setCopied] = (0, import_react.useState)("");
+    const [selectedTag, setSelectedTag] = (0, import_react.useState)(null);
+    const allTags = (0, import_react.useMemo)(() => {
+      const s = /* @__PURE__ */ new Set();
+      deck.cards.forEach((c) => cardTags(c).forEach((t) => s.add(t)));
+      return [...s].sort();
+    }, [deck.cards]);
+    (0, import_react.useEffect)(() => {
+      if (selectedTag && !allTags.includes(selectedTag)) setSelectedTag(null);
+    }, [allTags, selectedTag]);
+    const visibleCards = selectedTag ? deck.cards.filter((c) => cardTags(c).includes(selectedTag)) : deck.cards;
     const onResetProgress = () => {
       if (!confirm(`Reset all progress for "${deck.title}"? Every card goes back to unseen \u2014 this can't be undone.`)) return;
       onPatch({ ...deck, cards: deck.cards.map((c) => ({ ...c, srs: freshSrs() })) });
@@ -25618,50 +25645,99 @@ ${c.def}
         ] }),
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Pile, { n: Math.min(5, Math.max(2, Math.ceil(deck.cards.length / 3))) })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-modes", children: MODES.map((m) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { className: "ss-btn ss-mode", onClick: () => onOpen(m.id), disabled: !deck.cards.length, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: m.name }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: m.blurb })
-      ] }, m.id)) }),
+      allTags.length ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-chips", style: { marginBottom: 14 }, children: [
+        allTags.map((t) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+          "button",
+          {
+            className: `ss-chip${selectedTag === t ? " on" : ""}`,
+            onClick: () => setSelectedTag((s) => s === t ? null : t),
+            children: [
+              "#",
+              t
+            ]
+          },
+          t
+        )),
+        selectedTag ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-link", onClick: () => setSelectedTag(null), children: "Clear filter" }) : null
+      ] }) : null,
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-modes", children: MODES.map((m) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+        "button",
+        {
+          className: "ss-btn ss-mode",
+          onClick: () => onOpen(m.id, selectedTag),
+          disabled: !visibleCards.length,
+          children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("strong", { children: [
+              m.name,
+              selectedTag ? ` \xB7 #${selectedTag}` : ""
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: m.blurb })
+          ]
+        },
+        m.id
+      )) }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-sec-head", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", { children: "Cards" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("h2", { children: [
+          "Cards",
+          selectedTag ? ` \u2014 #${selectedTag}` : ""
+        ] }),
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "ss-spacer" }),
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn sm", onClick: onImport, children: "Import .md" }),
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn sm hl", onClick: () => onPatch({ ...deck, cards: [...deck.cards, mkCard("", "")] }), children: "Add card" })
       ] }),
-      deck.cards.length ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-rows", children: deck.cards.map((c, i) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-row", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-row-n", children: String(i + 1).padStart(2, "0") }),
+      visibleCards.length ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-rows", children: visibleCards.map((c, i) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-row", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-row-main", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-row-n", children: String(i + 1).padStart(2, "0") }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+            "textarea",
+            {
+              className: "ss-cell term",
+              rows: 1,
+              value: c.term,
+              placeholder: "Term",
+              "aria-label": `Term ${i + 1}`,
+              onChange: (e) => setCard(c.id, "term", e.target.value)
+            }
+          ),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+            "textarea",
+            {
+              className: "ss-cell def",
+              rows: 1,
+              value: c.def,
+              placeholder: "Definition",
+              "aria-label": `Definition ${i + 1}`,
+              onChange: (e) => setCard(c.id, "def", e.target.value)
+            }
+          ),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+            "button",
+            {
+              className: "ss-x",
+              "aria-label": `Delete card ${i + 1}`,
+              onClick: () => onPatch({ ...deck, cards: deck.cards.filter((x) => x.id !== c.id) }),
+              children: "\xD7"
+            }
+          )
+        ] }),
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-          "textarea",
+          "input",
           {
-            className: "ss-cell term",
-            rows: 1,
-            value: c.term,
-            placeholder: "Term",
-            "aria-label": `Term ${i + 1}`,
-            onChange: (e) => setCard(c.id, "term", e.target.value)
-          }
-        ),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-          "textarea",
-          {
-            className: "ss-cell def",
-            rows: 1,
-            value: c.def,
-            placeholder: "Definition",
-            "aria-label": `Definition ${i + 1}`,
-            onChange: (e) => setCard(c.id, "def", e.target.value)
-          }
-        ),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-          "button",
-          {
-            className: "ss-x",
-            "aria-label": `Delete card ${i + 1}`,
-            onClick: () => onPatch({ ...deck, cards: deck.cards.filter((x) => x.id !== c.id) }),
-            children: "\xD7"
+            className: "ss-tag-input",
+            placeholder: "tags, comma separated",
+            value: cardTags(c).join(", "),
+            "aria-label": `Tags for card ${i + 1}`,
+            onChange: (e) => setCard(c.id, "tags", e.target.value.split(",").map((t) => t.trim()).filter(Boolean))
           }
         )
-      ] }, c.id)) }) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-empty", children: [
+      ] }, c.id)) }) : selectedTag ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-empty", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("h3", { children: [
+          "No cards tagged #",
+          selectedTag
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "Clear the filter to see the rest of the deck." }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn hl", onClick: () => setSelectedTag(null), children: "Clear filter" })
+      ] }) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-empty", children: [
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { children: "No cards yet" }),
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "Add them one at a time, or bring in a markdown file you already have." }),
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn hl", onClick: onImport, children: "Import cards" })
@@ -25973,6 +26049,20 @@ Photosynthesis              <- definition list
         cards: d.cards.map((c) => c.id === cardId ? { ...c, srs: grade(c.srs, g) } : c)
       })));
     }, []);
+    const patchCard = (0, import_react.useCallback)((cardId, updates) => {
+      setDecks((ds) => ds.map((d) => ({
+        ...d,
+        cards: d.cards.map((c) => c.id === cardId ? { ...c, ...updates } : c)
+      })));
+    }, []);
+    const deleteCard = (0, import_react.useCallback)((cardId) => {
+      setDecks((ds) => ds.map((d) => ({ ...d, cards: d.cards.filter((c) => c.id !== cardId) })));
+    }, []);
+    const allTags = (0, import_react.useMemo)(() => {
+      const s = /* @__PURE__ */ new Set();
+      (decks || []).forEach((d) => d.cards.forEach((c) => cardTags(c).forEach((t) => s.add(t))));
+      return [...s].sort();
+    }, [decks]);
     const exportAll = () => {
       const blob = new Blob([JSON.stringify({ decks, bests }, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
@@ -25983,6 +26073,23 @@ Photosynthesis              <- definition list
       URL.revokeObjectURL(url);
     };
     const deck = decks && view.deckId ? decks.find((d) => d.id === view.deckId) : null;
+    const studyDeck = (0, import_react.useMemo)(() => {
+      if (view.screen !== "study" || !decks) return null;
+      if (view.deckId) {
+        if (!deck) return null;
+        if (!view.tag) return deck;
+        return { ...deck, cards: deck.cards.filter((c) => cardTags(c).includes(view.tag)) };
+      }
+      if (view.tag) {
+        return {
+          id: `tag:${view.tag}`,
+          title: `#${view.tag}`,
+          subject: "Across all decks",
+          cards: decks.flatMap((d) => d.cards).filter((c) => cardTags(c).includes(view.tag))
+        };
+      }
+      return null;
+    }, [view, decks, deck]);
     if (status === "loading") {
       return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: `ss${dark ? " dark" : ""}`, children: [
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("style", { children: CSS }),
@@ -25998,7 +26105,7 @@ Photosynthesis              <- definition list
             "StudyStack"
           ] }),
           view.screen !== "home" ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-link", onClick: () => setView({ screen: "home" }), children: "\u2190 Home" }) : null,
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "ss-crumb", children: view.screen === "home" ? `${decks.length} decks` : view.screen === "deck" ? deck?.title : `${deck?.title} \xB7 ${view.mode}` }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "ss-crumb", children: view.screen === "home" ? `${decks.length} decks` : view.screen === "deck" ? deck?.title : `${studyDeck?.title || ""} \xB7 ${view.mode}` }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "ss-spacer" }),
           status === "nosave" ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "ss-crumb", style: { color: "var(--rose)" }, children: "Not saving \u2014 storage unavailable" }) : null,
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn sm ghost", onClick: () => setDark((d) => !d), "aria-label": "Toggle dark mode", children: dark ? "\u2600\uFE0F Light" : "\u{1F319} Dark" })
@@ -26044,6 +26151,22 @@ Photosynthesis              <- definition list
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "Start with the thing you're most behind on." }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn hl", onClick: () => setSheet("newdeck"), children: "New deck" })
           ] }),
+          allTags.length ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-sec-head", style: { marginTop: 34 }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", { children: "Study by tag" }) }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "ss-note", style: { marginBottom: 10 }, children: "Pulls matching cards from every deck at once." }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-chips", children: allTags.map((t) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+              "button",
+              {
+                className: "ss-chip",
+                onClick: () => setView({ screen: "study", mode: "flashcards", tag: t }),
+                children: [
+                  "#",
+                  t
+                ]
+              },
+              t
+            )) })
+          ] }) : null,
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { className: "ss-note", style: { marginTop: 34 }, children: [
             "Decks persist between sessions.",
             " ",
@@ -26061,7 +26184,7 @@ Photosynthesis              <- definition list
           DeckDetail,
           {
             deck,
-            onOpen: (mode) => setView({ screen: "study", deckId: deck.id, mode }),
+            onOpen: (mode, tag) => setView({ screen: "study", deckId: deck.id, mode, tag: tag || void 0 }),
             onPatch: patchDeck,
             onBack: () => setView({ screen: "home" }),
             onImport: () => setSheet("import"),
@@ -26073,19 +26196,46 @@ Photosynthesis              <- definition list
             }
           }
         ) : null,
-        view.screen === "study" && deck ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
-          view.mode === "flashcards" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Flashcards, { deck, onGrade: gradeCard, onPatch: patchDeck, onExit: () => setView({ screen: "deck", deckId: deck.id }) }),
+        view.screen === "study" && studyDeck ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+          view.mode === "flashcards" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+            Flashcards,
+            {
+              deck: studyDeck,
+              onGrade: gradeCard,
+              onPatchCard: patchCard,
+              onDeleteCard: deleteCard,
+              backLabel: view.deckId ? "Back to deck" : "Done",
+              onExit: () => setView(view.deckId ? { screen: "deck", deckId: view.deckId } : { screen: "home" })
+            }
+          ),
           view.mode === "match" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
             Match,
             {
-              deck,
-              best: bests[deck.id],
-              onBest: (s) => setBests((b) => !b[deck.id] || s < b[deck.id] ? { ...b, [deck.id]: s } : b),
-              onExit: () => setView({ screen: "deck", deckId: deck.id })
+              deck: studyDeck,
+              best: bests[studyDeck.id],
+              onBest: (s) => setBests((b) => !b[studyDeck.id] || s < b[studyDeck.id] ? { ...b, [studyDeck.id]: s } : b),
+              backLabel: view.deckId ? "Back to deck" : "Done",
+              onExit: () => setView(view.deckId ? { screen: "deck", deckId: view.deckId } : { screen: "home" })
             }
           ),
-          view.mode === "test" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Test, { deck, onGrade: gradeCard, onExit: () => setView({ screen: "deck", deckId: deck.id }) }),
-          view.mode === "review" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Review, { deck, onGrade: gradeCard, onExit: () => setView({ screen: "deck", deckId: deck.id }) })
+          view.mode === "test" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+            Test,
+            {
+              deck: studyDeck,
+              onGrade: gradeCard,
+              backLabel: view.deckId ? "Back to deck" : "Done",
+              onExit: () => setView(view.deckId ? { screen: "deck", deckId: view.deckId } : { screen: "home" })
+            }
+          ),
+          view.mode === "review" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+            Review,
+            {
+              deck: studyDeck,
+              onGrade: gradeCard,
+              backLabel: view.deckId ? "Back to deck" : "Done",
+              onExit: () => setView(view.deckId ? { screen: "deck", deckId: view.deckId } : { screen: "home" })
+            }
+          )
         ] }) : null
       ] }),
       sheet === "newdeck" ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(

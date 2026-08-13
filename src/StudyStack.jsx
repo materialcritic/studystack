@@ -158,8 +158,9 @@ const CSS = `
 .ss-mode strong { font-family: var(--display); font-size: 16px; font-weight: 700; letter-spacing: -.02em; display: block; }
 .ss-mode span { font-size: 12px; color: var(--ink-soft); }
 .ss-rows { border: 1.5px solid var(--ink); border-radius: 4px; overflow: hidden; background: var(--card); }
-.ss-row { display: grid; grid-template-columns: 34px 1fr 1.4fr 30px; gap: 12px; align-items: start; padding: 12px 14px; border-bottom: 1px solid var(--rule); }
+.ss-row { padding: 12px 14px; border-bottom: 1px solid var(--rule); }
 .ss-row:last-child { border-bottom: none; }
+.ss-row-main { display: grid; grid-template-columns: 34px 1fr 1.4fr 30px; gap: 12px; align-items: start; }
 .ss-row-n { font-family: var(--mono); font-size: 11.5px; color: var(--ink-soft); padding-top: 3px; }
 .ss-cell {
   border: none; background: transparent; width: 100%; resize: none; overflow: hidden;
@@ -169,6 +170,20 @@ const CSS = `
 .ss-cell.term { font-weight: 600; }
 .ss-x { color: var(--ink-soft); font-size: 17px; line-height: 1; padding: 2px 4px; }
 .ss-x:hover { color: var(--rose); }
+.ss-tag-input {
+  display: block; width: 100%; margin-top: 6px; margin-left: 46px; max-width: calc(100% - 46px);
+  border: none; background: transparent; font-family: var(--mono); font-size: 11.5px;
+  color: var(--ink-soft); padding: 2px 0;
+}
+.ss-tag-input::placeholder { color: var(--placeholder); }
+.ss-tag-input:focus { color: var(--ink); outline: none; }
+.ss-chips { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.ss-chip {
+  font-family: var(--mono); font-size: 11.5px; border: 1.2px solid var(--rule); border-radius: 99px;
+  padding: 4px 11px; color: var(--ink-soft); background: var(--card);
+}
+.ss-chip:hover { border-color: var(--ink); color: var(--ink); }
+.ss-chip.on { border-color: var(--ink); background: var(--hl); color: var(--ink); }
 
 /* ---------- study surface ---------- */
 .ss-study { display: flex; flex-direction: column; align-items: center; gap: 20px; }
@@ -346,8 +361,9 @@ const CSS = `
 @media (max-width: 620px) {
   .ss-tiles { grid-template-columns: repeat(2, 1fr); }
   .ss-grades { grid-template-columns: repeat(2, 1fr); }
-  .ss-row { grid-template-columns: 22px 1fr 26px; }
-  .ss-row .ss-cell.def { grid-column: 2 / 3; }
+  .ss-row-main { grid-template-columns: 22px 1fr 26px; }
+  .ss-row-main .ss-cell.def { grid-column: 2 / 3; }
+  .ss-tag-input { margin-left: 34px; max-width: calc(100% - 34px); }
   .ss-today { padding: 20px; }
   .ss-pile { display: none; }
 }
@@ -363,7 +379,8 @@ const uid = () => Math.random().toString(36).slice(2, 10);
 
 const freshSrs = () => ({ due: 0, stability: 0, difficulty: 5, reps: 0, lapses: 0 });
 
-const mkCard = (term, def) => ({ id: uid(), term, def, srs: freshSrs() });
+const mkCard = (term, def) => ({ id: uid(), term, def, tags: [], srs: freshSrs() });
+const cardTags = (c) => c.tags || [];
 
 const SEED = [];
 
@@ -688,14 +705,14 @@ function Card({ front, back, flipped, onFlip, remaining = 0, label = "Term" }) {
       <div className={`ss-flip${flipped ? " on" : ""}`}>
         <div className="ss-flip-in">
           <div className="ss-face" onClick={onFlip} role="button" tabIndex={flipped ? -1 : 0}
-            aria-hidden={flipped} inert={flipped}
+            aria-hidden={flipped} inert={flipped ? "" : undefined}
             onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onFlip(); } }}>
             <div className="ss-face-rule"><span className="ss-face-lab">{label}</span></div>
             <div className="ss-face-mid"><p>{front}</p></div>
             <div className="ss-hint">click or press space to flip</div>
           </div>
           <div className="ss-face back" onClick={onFlip} role="button" tabIndex={flipped ? 0 : -1}
-            aria-hidden={!flipped} inert={!flipped}
+            aria-hidden={!flipped} inert={!flipped ? "" : undefined}
             onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onFlip(); } }}>
             <div className="ss-face-rule"><span className="ss-face-lab">Definition</span></div>
             <div className="ss-face-mid"><p>{back}</p></div>
@@ -730,7 +747,7 @@ function Done({ title, lines, actions }) {
 
 /* ------------------------------ modes ------------------------------ */
 
-function Flashcards({ deck, onExit, onGrade, onPatch }) {
+function Flashcards({ deck, onExit, onGrade, onPatchCard, onDeleteCard, backLabel = "Back to deck" }) {
   const [queue, setQueue] = useState(() => shuffle(deck.cards));
   const [i, setI] = useState(0);
   const [flipped, setFlipped] = useState(false);
@@ -754,16 +771,16 @@ function Flashcards({ deck, onExit, onGrade, onPatch }) {
       if (next) s.add(card.id); else s.delete(card.id);
       return s;
     });
-    onPatch({ ...deck, cards: deck.cards.map((c) => (c.id === card.id ? { ...c, flagged: next } : c)) });
-  }, [card, flagged, deck, onPatch]);
+    onPatchCard(card.id, { flagged: next });
+  }, [card, flagged, onPatchCard]);
 
-  const deleteCard = useCallback(() => {
+  const removeCard = useCallback(() => {
     if (!card) return;
     if (!confirm(`Delete "${card.term}"? This can't be undone.`)) return;
-    onPatch({ ...deck, cards: deck.cards.filter((c) => c.id !== card.id) });
+    onDeleteCard(card.id);
     setQueue((q) => q.filter((c) => c.id !== card.id));
     setFlipped(false);
-  }, [card, deck, onPatch]);
+  }, [card, onDeleteCard]);
 
   useEffect(() => {
     const h = (e) => {
@@ -787,7 +804,7 @@ function Flashcards({ deck, onExit, onGrade, onPatch }) {
             </button>
           ) : null,
           <button key="a" className="ss-btn" onClick={() => { setQueue(shuffle(deck.cards)); setMissed([]); setI(0); }}>Shuffle all</button>,
-          <button key="e" className="ss-btn ghost" onClick={onExit}>Back to deck</button>,
+          <button key="e" className="ss-btn ghost" onClick={onExit}>{backLabel}</button>,
         ]}
       />
     );
@@ -803,7 +820,7 @@ function Flashcards({ deck, onExit, onGrade, onPatch }) {
           <button className={`ss-btn sm${flagged.has(card.id) ? " hl" : ""}`} onClick={toggleFlag}>
             {flagged.has(card.id) ? "🚩 Flagged" : "🚩 Flag"}
           </button>
-          <button className="ss-btn sm" onClick={deleteCard}>🗑 Delete</button>
+          <button className="ss-btn sm" onClick={removeCard}>🗑 Delete</button>
         </div>
       </div>
       <div className="ss-verdicts">
@@ -814,7 +831,7 @@ function Flashcards({ deck, onExit, onGrade, onPatch }) {
   );
 }
 
-function Match({ deck, onExit, best, onBest }) {
+function Match({ deck, onExit, best, onBest, backLabel = "Back to deck" }) {
   const PAIRS = Math.min(6, deck.cards.length);
   const build = () => {
     const picked = shuffle(deck.cards).slice(0, PAIRS);
@@ -861,7 +878,7 @@ function Match({ deck, onExit, best, onBest }) {
         lines={[best && best < ms / 1000 ? `Your best is ${best.toFixed(1)}s.` : "New best time."]}
         actions={[
           <button key="r" className="ss-btn hl" onClick={() => { setTiles(build()); setCleared([]); setSel(null); setMs(0); }}>Play again</button>,
-          <button key="e" className="ss-btn ghost" onClick={onExit}>Back to deck</button>,
+          <button key="e" className="ss-btn ghost" onClick={onExit}>{backLabel}</button>,
         ]} />
     );
   }
@@ -888,7 +905,7 @@ function Match({ deck, onExit, best, onBest }) {
   );
 }
 
-function Test({ deck, onExit, onGrade }) {
+function Test({ deck, onExit, onGrade, backLabel = "Back to deck" }) {
   const size = Math.min(10, deck.cards.length);
   const questions = useMemo(() => {
     const picked = shuffle(deck.cards).slice(0, size);
@@ -934,7 +951,7 @@ function Test({ deck, onExit, onGrade }) {
           <div className="ss-eyebrow">Result</div>
           <div className="ss-score">{Math.round((correct / questions.length) * 100)}%<small> · {correct} of {questions.length}</small></div>
           <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 20, flexWrap: "wrap" }}>
-            <button className="ss-btn hl" onClick={onExit}>Back to deck</button>
+            <button className="ss-btn hl" onClick={onExit}>{backLabel}</button>
           </div>
         </div>
       ) : (
@@ -989,7 +1006,7 @@ function Test({ deck, onExit, onGrade }) {
   );
 }
 
-function Review({ deck, onExit, onGrade }) {
+function Review({ deck, onExit, onGrade, backLabel = "Back to deck" }) {
   const [queue, setQueue] = useState(() => deck.cards.filter(isDue).map((c) => c.id));
   const [ahead, setAhead] = useState(false);
   const [shown, setShown] = useState(false);
@@ -1018,14 +1035,14 @@ function Review({ deck, onExit, onGrade }) {
           </p>
           <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 20, flexWrap: "wrap" }}>
             <button className="ss-btn hl" onClick={startAhead}>Study ahead anyway</button>
-            <button className="ss-btn ghost" onClick={onExit}>Back to deck</button>
+            <button className="ss-btn ghost" onClick={onExit}>{backLabel}</button>
           </div>
         </div>
       );
     }
     return (
       <Done title={`${count}`} lines={[`Cards reviewed. Each one is scheduled for its next reappearance.`]}
-        actions={[<button key="e" className="ss-btn hl" onClick={onExit}>Back to deck</button>]} />
+        actions={[<button key="e" className="ss-btn hl" onClick={onExit}>{backLabel}</button>]} />
     );
   }
 
@@ -1072,6 +1089,19 @@ function DeckDetail({ deck, onOpen, onPatch, onDelete, onBack, onImport }) {
   const pct = Math.round(mastery(deck) * 100);
   const due = dueCount(deck);
   const [copied, setCopied] = useState("");
+  const [selectedTag, setSelectedTag] = useState(null);
+
+  const allTags = useMemo(() => {
+    const s = new Set();
+    deck.cards.forEach((c) => cardTags(c).forEach((t) => s.add(t)));
+    return [...s].sort();
+  }, [deck.cards]);
+
+  useEffect(() => {
+    if (selectedTag && !allTags.includes(selectedTag)) setSelectedTag(null);
+  }, [allTags, selectedTag]);
+
+  const visibleCards = selectedTag ? deck.cards.filter((c) => cardTags(c).includes(selectedTag)) : deck.cards;
 
   const onResetProgress = () => {
     if (!confirm(`Reset all progress for "${deck.title}"? Every card goes back to unseen — this can't be undone.`)) return;
@@ -1113,16 +1143,29 @@ function DeckDetail({ deck, onOpen, onPatch, onDelete, onBack, onImport }) {
         <Pile n={Math.min(5, Math.max(2, Math.ceil(deck.cards.length / 3)))} />
       </div>
 
+      {allTags.length ? (
+        <div className="ss-chips" style={{ marginBottom: 14 }}>
+          {allTags.map((t) => (
+            <button key={t} className={`ss-chip${selectedTag === t ? " on" : ""}`}
+              onClick={() => setSelectedTag((s) => (s === t ? null : t))}>
+              #{t}
+            </button>
+          ))}
+          {selectedTag ? <button className="ss-link" onClick={() => setSelectedTag(null)}>Clear filter</button> : null}
+        </div>
+      ) : null}
+
       <div className="ss-modes">
         {MODES.map((m) => (
-          <button key={m.id} className="ss-btn ss-mode" onClick={() => onOpen(m.id)} disabled={!deck.cards.length}>
-            <strong>{m.name}</strong><span>{m.blurb}</span>
+          <button key={m.id} className="ss-btn ss-mode" onClick={() => onOpen(m.id, selectedTag)}
+            disabled={!visibleCards.length}>
+            <strong>{m.name}{selectedTag ? ` · #${selectedTag}` : ""}</strong><span>{m.blurb}</span>
           </button>
         ))}
       </div>
 
       <div className="ss-sec-head">
-        <h2>Cards</h2>
+        <h2>Cards{selectedTag ? ` — #${selectedTag}` : ""}</h2>
         <span className="ss-spacer" />
         <button className="ss-btn sm" onClick={onImport}>Import .md</button>
         <button className="ss-btn sm hl" onClick={() => onPatch({ ...deck, cards: [...deck.cards, mkCard("", "")] })}>
@@ -1130,19 +1173,30 @@ function DeckDetail({ deck, onOpen, onPatch, onDelete, onBack, onImport }) {
         </button>
       </div>
 
-      {deck.cards.length ? (
+      {visibleCards.length ? (
         <div className="ss-rows">
-          {deck.cards.map((c, i) => (
+          {visibleCards.map((c, i) => (
             <div className="ss-row" key={c.id}>
-              <div className="ss-row-n">{String(i + 1).padStart(2, "0")}</div>
-              <textarea className="ss-cell term" rows={1} value={c.term} placeholder="Term"
-                aria-label={`Term ${i + 1}`} onChange={(e) => setCard(c.id, "term", e.target.value)} />
-              <textarea className="ss-cell def" rows={1} value={c.def} placeholder="Definition"
-                aria-label={`Definition ${i + 1}`} onChange={(e) => setCard(c.id, "def", e.target.value)} />
-              <button className="ss-x" aria-label={`Delete card ${i + 1}`}
-                onClick={() => onPatch({ ...deck, cards: deck.cards.filter((x) => x.id !== c.id) })}>×</button>
+              <div className="ss-row-main">
+                <div className="ss-row-n">{String(i + 1).padStart(2, "0")}</div>
+                <textarea className="ss-cell term" rows={1} value={c.term} placeholder="Term"
+                  aria-label={`Term ${i + 1}`} onChange={(e) => setCard(c.id, "term", e.target.value)} />
+                <textarea className="ss-cell def" rows={1} value={c.def} placeholder="Definition"
+                  aria-label={`Definition ${i + 1}`} onChange={(e) => setCard(c.id, "def", e.target.value)} />
+                <button className="ss-x" aria-label={`Delete card ${i + 1}`}
+                  onClick={() => onPatch({ ...deck, cards: deck.cards.filter((x) => x.id !== c.id) })}>×</button>
+              </div>
+              <input className="ss-tag-input" placeholder="tags, comma separated" value={cardTags(c).join(", ")}
+                aria-label={`Tags for card ${i + 1}`}
+                onChange={(e) => setCard(c.id, "tags", e.target.value.split(",").map((t) => t.trim()).filter(Boolean))} />
             </div>
           ))}
+        </div>
+      ) : selectedTag ? (
+        <div className="ss-empty">
+          <h3>No cards tagged #{selectedTag}</h3>
+          <p>Clear the filter to see the rest of the deck.</p>
+          <button className="ss-btn hl" onClick={() => setSelectedTag(null)}>Clear filter</button>
         </div>
       ) : (
         <div className="ss-empty">
@@ -1415,6 +1469,25 @@ export default function StudyStack() {
     })));
   }, []);
 
+  // Card id is globally unique, so these work whether the card came from a
+  // single-deck study session or a cross-deck tag-scoped one.
+  const patchCard = useCallback((cardId, updates) => {
+    setDecks((ds) => ds.map((d) => ({
+      ...d,
+      cards: d.cards.map((c) => (c.id === cardId ? { ...c, ...updates } : c)),
+    })));
+  }, []);
+
+  const deleteCard = useCallback((cardId) => {
+    setDecks((ds) => ds.map((d) => ({ ...d, cards: d.cards.filter((c) => c.id !== cardId) })));
+  }, []);
+
+  const allTags = useMemo(() => {
+    const s = new Set();
+    (decks || []).forEach((d) => d.cards.forEach((c) => cardTags(c).forEach((t) => s.add(t))));
+    return [...s].sort();
+  }, [decks]);
+
   const exportAll = () => {
     const blob = new Blob([JSON.stringify({ decks, bests }, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -1426,6 +1499,25 @@ export default function StudyStack() {
   };
 
   const deck = decks && view.deckId ? decks.find((d) => d.id === view.deckId) : null;
+
+  const studyDeck = useMemo(() => {
+    if (view.screen !== "study" || !decks) return null;
+    if (view.deckId) {
+      if (!deck) return null;
+      if (!view.tag) return deck;
+      return { ...deck, cards: deck.cards.filter((c) => cardTags(c).includes(view.tag)) };
+    }
+    if (view.tag) {
+      return {
+        id: `tag:${view.tag}`,
+        title: `#${view.tag}`,
+        subject: "Across all decks",
+        cards: decks.flatMap((d) => d.cards).filter((c) => cardTags(c).includes(view.tag)),
+      };
+    }
+    return null;
+  }, [view, decks, deck]);
+
   if (status === "loading") {
     return (
       <div className={`ss${dark ? " dark" : ""}`}><style>{CSS}</style>
@@ -1446,7 +1538,9 @@ export default function StudyStack() {
             <button className="ss-link" onClick={() => setView({ screen: "home" })}>← Home</button>
           ) : null}
           <span className="ss-crumb">
-            {view.screen === "home" ? `${decks.length} decks` : view.screen === "deck" ? deck?.title : `${deck?.title} · ${view.mode}`}
+            {view.screen === "home" ? `${decks.length} decks`
+              : view.screen === "deck" ? deck?.title
+              : `${studyDeck?.title || ""} · ${view.mode}`}
           </span>
           <span className="ss-spacer" />
           {status === "nosave" ? <span className="ss-crumb" style={{ color: "var(--rose)" }}>Not saving — storage unavailable</span> : null}
@@ -1495,6 +1589,23 @@ export default function StudyStack() {
               </div>
             )}
 
+            {allTags.length ? (
+              <>
+                <div className="ss-sec-head" style={{ marginTop: 34 }}>
+                  <h2>Study by tag</h2>
+                </div>
+                <p className="ss-note" style={{ marginBottom: 10 }}>Pulls matching cards from every deck at once.</p>
+                <div className="ss-chips">
+                  {allTags.map((t) => (
+                    <button key={t} className="ss-chip"
+                      onClick={() => setView({ screen: "study", mode: "flashcards", tag: t })}>
+                      #{t}
+                    </button>
+                  ))}
+                </div>
+              </>
+            ) : null}
+
             <p className="ss-note" style={{ marginTop: 34 }}>
               Decks persist between sessions.{" "}
               <button className="ss-link" onClick={exportAll}>Export all data</button>
@@ -1509,7 +1620,7 @@ export default function StudyStack() {
         {view.screen === "deck" && deck ? (
           <DeckDetail
             deck={deck}
-            onOpen={(mode) => setView({ screen: "study", deckId: deck.id, mode })}
+            onOpen={(mode, tag) => setView({ screen: "study", deckId: deck.id, mode, tag: tag || undefined })}
             onPatch={patchDeck}
             onBack={() => setView({ screen: "home" })}
             onImport={() => setSheet("import")}
@@ -1522,15 +1633,29 @@ export default function StudyStack() {
           />
         ) : null}
 
-        {view.screen === "study" && deck ? (
+        {view.screen === "study" && studyDeck ? (
           <>
-            {view.mode === "flashcards" && <Flashcards deck={deck} onGrade={gradeCard} onPatch={patchDeck} onExit={() => setView({ screen: "deck", deckId: deck.id })} />}
-            {view.mode === "match" && (
-              <Match deck={deck} best={bests[deck.id]} onBest={(s) => setBests((b) => (!b[deck.id] || s < b[deck.id] ? { ...b, [deck.id]: s } : b))}
-                onExit={() => setView({ screen: "deck", deckId: deck.id })} />
+            {view.mode === "flashcards" && (
+              <Flashcards deck={studyDeck} onGrade={gradeCard} onPatchCard={patchCard} onDeleteCard={deleteCard}
+                backLabel={view.deckId ? "Back to deck" : "Done"}
+                onExit={() => setView(view.deckId ? { screen: "deck", deckId: view.deckId } : { screen: "home" })} />
             )}
-            {view.mode === "test" && <Test deck={deck} onGrade={gradeCard} onExit={() => setView({ screen: "deck", deckId: deck.id })} />}
-            {view.mode === "review" && <Review deck={deck} onGrade={gradeCard} onExit={() => setView({ screen: "deck", deckId: deck.id })} />}
+            {view.mode === "match" && (
+              <Match deck={studyDeck} best={bests[studyDeck.id]}
+                onBest={(s) => setBests((b) => (!b[studyDeck.id] || s < b[studyDeck.id] ? { ...b, [studyDeck.id]: s } : b))}
+                backLabel={view.deckId ? "Back to deck" : "Done"}
+                onExit={() => setView(view.deckId ? { screen: "deck", deckId: view.deckId } : { screen: "home" })} />
+            )}
+            {view.mode === "test" && (
+              <Test deck={studyDeck} onGrade={gradeCard}
+                backLabel={view.deckId ? "Back to deck" : "Done"}
+                onExit={() => setView(view.deckId ? { screen: "deck", deckId: view.deckId } : { screen: "home" })} />
+            )}
+            {view.mode === "review" && (
+              <Review deck={studyDeck} onGrade={gradeCard}
+                backLabel={view.deckId ? "Back to deck" : "Done"}
+                onExit={() => setView(view.deckId ? { screen: "deck", deckId: view.deckId } : { screen: "home" })} />
+            )}
           </>
         ) : null}
       </div>
