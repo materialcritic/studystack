@@ -318,6 +318,18 @@ const CSS = `
 .ss-score { font-family: var(--display); font-size: clamp(52px, 11vw, 84px); font-weight: 800; letter-spacing: -.05em; line-height: .9; }
 .ss-score small { font-family: var(--mono); font-size: 14px; font-weight: 400; letter-spacing: 0; color: var(--ink-soft); }
 
+/* ---------- mock test palette ---------- */
+.ss-palette { display: grid; grid-template-columns: repeat(auto-fill, minmax(38px, 1fr)); gap: 8px; }
+.ss-pal {
+  aspect-ratio: 1; border-radius: 4px; font-family: var(--mono); font-size: 12.5px; font-weight: 600;
+  border: 1.5px solid var(--rule); background: var(--card); color: var(--ink-soft);
+}
+.ss-pal-unvisited { border-style: dashed; }
+.ss-pal-visited { border-color: var(--ink); color: var(--ink); }
+.ss-pal-answered { border-color: var(--teal); background: var(--teal-soft); color: var(--ink); }
+.ss-pal-marked { border-color: var(--rose); background: var(--rose-soft); color: var(--ink); }
+.ss-pal.current { outline: 2.5px solid var(--navy); outline-offset: 1.5px; }
+
 /* ---------- grades ---------- */
 .ss-grades { display: grid; grid-template-columns: repeat(4, 1fr); gap: 9px; width: 100%; max-width: 620px; }
 .ss-grade { padding: 11px 8px; text-align: center; }
@@ -1002,48 +1014,56 @@ function Match({ deck, onExit, best, onBest, backLabel = "Back to deck" }) {
   );
 }
 
+function buildQuestions(deck, size) {
+  const picked = shuffle(deck.cards).slice(0, size);
+  return picked.map((c, i) => {
+    if (hasAuthoredOptions(c)) {
+      return {
+        card: c,
+        type: c.type === "assertion" ? "assertion" : "mc",
+        options: shuffle(c.options.filter((o) => o && o.trim())),
+        correctText: c.options[c.answer],
+      };
+    }
+    const canMC = deck.cards.length >= 4;
+    const type = canMC && i % 2 === 0 ? "mc" : "written";
+    if (type === "mc") {
+      const wrong = shuffle(deck.cards.filter((x) => x.id !== c.id)).slice(0, 3).map((x) => x.def);
+      return { card: c, type, options: shuffle([c.def, ...wrong]), correctText: c.def };
+    }
+    return { card: c, type, correctText: c.def };
+  });
+}
+const isMC = (t) => t === "mc" || t === "assertion";
+const evaluateAnswer = (q, a) => (isMC(q.type) ? { ok: a === q.correctText, missing: [] } : scoreWritten(a, q.card));
+
 function Test({ deck, onExit, onGrade, backLabel = "Back to deck" }) {
   const size = Math.min(10, deck.cards.length);
-  const questions = useMemo(() => {
-    const picked = shuffle(deck.cards).slice(0, size);
-    return picked.map((c, i) => {
-      if (hasAuthoredOptions(c)) {
-        return {
-          card: c,
-          type: c.type === "assertion" ? "assertion" : "mc",
-          options: shuffle(c.options.filter((o) => o && o.trim())),
-          correctText: c.options[c.answer],
-        };
-      }
-      const canMC = deck.cards.length >= 4;
-      const type = canMC && i % 2 === 0 ? "mc" : "written";
-      if (type === "mc") {
-        const wrong = shuffle(deck.cards.filter((x) => x.id !== c.id)).slice(0, 3).map((x) => x.def);
-        return { card: c, type, options: shuffle([c.def, ...wrong]), correctText: c.def };
-      }
-      return { card: c, type, correctText: c.def };
-    });
-  }, [deck.cards, size]);
+  const questions = useMemo(() => buildQuestions(deck, size), [deck.cards, size]);
 
   const [answers, setAnswers] = useState({});
   const [graded, setGraded] = useState(false);
-
-  const isMC = (t) => t === "mc" || t === "assertion";
-  const evaluate = (q, a) => (isMC(q.type) ? { ok: a === q.correctText, missing: [] } : scoreWritten(a, q.card));
+  // See MockTest's answersRef comment — same fix, grading must never read a
+  // stale snapshot if Submit is clicked right after an answer.
+  const answersRef = useRef({});
+  const setAnswer = (cid, val) => {
+    answersRef.current = { ...answersRef.current, [cid]: val };
+    setAnswers(answersRef.current);
+  };
 
   const results = useMemo(() => {
     if (!graded) return null;
     return questions.map((q) => {
       const a = answers[q.card.id] || "";
-      const { ok, missing } = evaluate(q, a);
+      const { ok, missing } = evaluateAnswer(q, a);
       return { ...q, given: a, ok, missing };
     });
   }, [graded, questions, answers]);
 
   const submit = () => {
     questions.forEach((q) => {
-      const a = answers[q.card.id] || "";
-      const { ok } = evaluate(q, a);
+      const a = answersRef.current[q.card.id] || "";
+      const { ok } = evaluateAnswer(q, a);
       onGrade(q.card.id, ok ? 3 : 1);
     });
     setGraded(true);
@@ -1084,7 +1104,7 @@ function Test({ deck, onExit, onGrade, backLabel = "Back to deck" }) {
                   } else if (answers[q.card.id] === o) cls += " on";
                   return (
                     <button key={j} className={cls} disabled={graded}
-                      onClick={() => setAnswers((a) => ({ ...a, [q.card.id]: o }))}>
+                      onClick={() => setAnswer(q.card.id, o)}>
                       <kbd>{"ABCD"[j]}</kbd><span>{o}</span>
                     </button>
                   );
@@ -1099,7 +1119,7 @@ function Test({ deck, onExit, onGrade, backLabel = "Back to deck" }) {
             ) : (
               <input className="ss-input" placeholder="Your answer" aria-label={`Answer for ${q.card.term}`}
                 value={answers[q.card.id] || ""}
-                onChange={(e) => setAnswers((a) => ({ ...a, [q.card.id]: e.target.value }))} />
+                onChange={(e) => setAnswer(q.card.id, e.target.value)} />
             )}
             {results && q.card.explanation ? <p className="ss-note" style={{ marginTop: 10 }}>{q.card.explanation}</p> : null}
           </div>
@@ -1112,6 +1132,234 @@ function Test({ deck, onExit, onGrade, backLabel = "Back to deck" }) {
           <button className="ss-btn ghost" onClick={onExit}>Cancel</button>
         </div>
       ) : null}
+    </div>
+  );
+}
+
+const MOCK_SIZE = 50;
+const MOCK_SEC_PER_Q = 72; // 1.2 min/question, matching 50Q/60min & 100Q/120min
+
+const fmtClock = (sec) => {
+  const s = Math.max(0, Math.round(sec));
+  return `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+};
+
+function MockTest({ deck, onExit, onGrade, onCreateDeck, backLabel = "Back to deck" }) {
+  const size = Math.min(MOCK_SIZE, deck.cards.length);
+  const questions = useMemo(() => buildQuestions(deck, size), [deck.cards, size]);
+
+  const [idx, setIdx] = useState(0);
+  const [answers, setAnswers] = useState({});
+  const [marked, setMarked] = useState(() => new Set());
+  const [visited, setVisited] = useState(() => new Set(questions[0] ? [questions[0].card.id] : []));
+  const [negMarking, setNegMarking] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(() => questions.length * MOCK_SEC_PER_Q);
+  const [timePerQ, setTimePerQ] = useState({});
+  const startRef = useRef(Date.now());
+  // React state can lag one commit behind rapid back-to-back events (e.g. an
+  // answer click immediately followed by Submit) — useCallback closures over
+  // `answers` risk grading against a stale snapshot. This ref is updated
+  // synchronously so submit() always sees the true latest answers.
+  const answersRef = useRef({});
+  const setAnswer = (cid, val) => {
+    answersRef.current = { ...answersRef.current, [cid]: val };
+    setAnswers(answersRef.current);
+  };
+  const clearAnswer = (cid) => {
+    const next = { ...answersRef.current };
+    delete next[cid];
+    answersRef.current = next;
+    setAnswers(next);
+  };
+
+  const q = questions[idx];
+
+  const flushTime = useCallback(() => {
+    const now = Date.now();
+    const cid = questions[idx]?.card.id;
+    if (cid) setTimePerQ((t) => ({ ...t, [cid]: (t[cid] || 0) + (now - startRef.current) }));
+    startRef.current = now;
+  }, [idx, questions]);
+
+  const goTo = (n) => {
+    if (n < 0 || n >= questions.length) return;
+    flushTime();
+    setIdx(n);
+    const cid = questions[n]?.card.id;
+    if (cid) setVisited((v) => new Set(v).add(cid));
+  };
+
+  const results = useMemo(() => {
+    if (!submitted) return null;
+    return questions.map((qq) => {
+      const a = answers[qq.card.id] || "";
+      const { ok, missing } = evaluateAnswer(qq, a);
+      return { ...qq, given: a, ok, missing };
+    });
+  }, [submitted, questions, answers]);
+
+  const submit = useCallback(() => {
+    flushTime();
+    questions.forEach((qq) => {
+      const a = answersRef.current[qq.card.id] || "";
+      const { ok } = evaluateAnswer(qq, a);
+      onGrade(qq.card.id, ok ? 3 : 1);
+    });
+    setSubmitted(true);
+  }, [flushTime, questions, onGrade]);
+
+  useEffect(() => {
+    if (submitted) return;
+    const t = setInterval(() => setTimeLeft((s) => Math.max(0, s - 1)), 1000);
+    return () => clearInterval(t);
+  }, [submitted]);
+
+  useEffect(() => {
+    if (!submitted && timeLeft === 0) submit();
+  }, [timeLeft]); // eslint-disable-line
+
+  if (!q) {
+    return (
+      <Done title="Nothing to test" lines={["This deck has no cards."]}
+        actions={[<button key="e" className="ss-btn hl" onClick={onExit}>{backLabel}</button>]} />
+    );
+  }
+
+  if (submitted) {
+    let raw = 0;
+    results.forEach((r) => {
+      if (!r.given) return;
+      if (r.ok) raw += 1;
+      else if (negMarking && isMC(r.type)) raw -= 0.25;
+    });
+    const missed = results.filter((r) => !r.ok);
+    const byTag = {};
+    results.forEach((r) => {
+      const tags = cardTags(r.card).length ? cardTags(r.card) : ["untagged"];
+      tags.forEach((t) => {
+        byTag[t] = byTag[t] || { correct: 0, total: 0 };
+        byTag[t].total += 1;
+        if (r.ok) byTag[t].correct += 1;
+      });
+    });
+    const pct = Math.max(0, Math.round((raw / questions.length) * 100));
+
+    return (
+      <div className="ss-study">
+        <div className="ss-panel" style={{ textAlign: "center" }}>
+          <div className="ss-eyebrow">Mock test result</div>
+          <div className="ss-score">
+            {pct}%<small> · {raw.toFixed(2)} / {questions.length}{negMarking ? " · negative marking on" : ""}</small>
+          </div>
+          <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 20, flexWrap: "wrap" }}>
+            {missed.length ? (
+              <button className="ss-btn hl" onClick={() => onCreateDeck(missed.map((r) => r.card))}>
+                Create deck from {missed.length} missed
+              </button>
+            ) : null}
+            <button className="ss-btn ghost" onClick={onExit}>{backLabel}</button>
+          </div>
+        </div>
+
+        {Object.keys(byTag).length > 1 ? (
+          <div className="ss-panel">
+            <div className="ss-eyebrow" style={{ marginBottom: 10 }}>Accuracy by tag</div>
+            {Object.entries(byTag).sort((a, b) => a[0].localeCompare(b[0])).map(([t, s]) => (
+              <div key={t} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+                <span className="ss-note" style={{ minWidth: 110 }}>{t === "untagged" ? "untagged" : `#${t}`}</span>
+                <div className="ss-bar" style={{ flex: 1 }}><i style={{ width: `${(s.correct / s.total) * 100}%` }} /></div>
+                <span className="ss-count">{s.correct}/{s.total}</span>
+              </div>
+            ))}
+          </div>
+        ) : null}
+
+        <div className="ss-panel">
+          <div className="ss-eyebrow" style={{ marginBottom: 10 }}>Per-question breakdown</div>
+          {results.map((r, i) => (
+            <div className="ss-q" key={r.card.id}>
+              <div className="ss-q-h">
+                {String(i + 1).padStart(2, "0")} · <span className={`ss-tag ${r.ok ? "ok" : "no"}`}>{r.ok ? "Correct" : "Missed"}</span>
+                {" · "}{fmtClock((timePerQ[r.card.id] || 0) / 1000)}
+              </div>
+              <p className="ss-q-p">{r.card.term}</p>
+              <p className="ss-ans">{r.correctText}</p>
+              <div className="ss-you">you wrote {r.given ? (r.ok ? r.given : <s>{r.given}</s>) : "— blank —"}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  const state = (i) => {
+    const cid = questions[i].card.id;
+    if (marked.has(cid)) return "marked";
+    if (answers[cid]) return "answered";
+    if (visited.has(cid)) return "visited";
+    return "unvisited";
+  };
+
+  return (
+    <div className="ss-study">
+      <div className="ss-studybar">
+        <span className="ss-clock" style={{ fontSize: 18 }}>{fmtClock(timeLeft)}</span>
+        <span className="ss-count">Question {idx + 1} of {questions.length}</span>
+        <span className="ss-spacer" />
+        <label className="ss-note" style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer" }}>
+          <input type="checkbox" checked={negMarking} onChange={(e) => setNegMarking(e.target.checked)} />
+          Negative marking (−0.25)
+        </label>
+      </div>
+
+      <div className="ss-panel" style={{ width: "100%" }}>
+        <div className="ss-q-h">{q.type === "assertion" ? "Assertion–Reason" : q.type === "mc" ? "Multiple choice" : "Written"}</div>
+        <p className="ss-q-p">{q.card.term}</p>
+        {isMC(q.type) ? (
+          <div className="ss-opts">
+            {q.options.map((o, j) => (
+              <button key={j} className={`ss-opt${answers[q.card.id] === o ? " on" : ""}`}
+                onClick={() => setAnswer(q.card.id, o)}>
+                <kbd>{"ABCD"[j]}</kbd><span>{o}</span>
+              </button>
+            ))}
+          </div>
+        ) : (
+          <input className="ss-input" placeholder="Your answer" aria-label={`Answer for ${q.card.term}`}
+            value={answers[q.card.id] || ""}
+            onChange={(e) => setAnswer(q.card.id, e.target.value)} />
+        )}
+        <div style={{ display: "flex", gap: 10, marginTop: 20, flexWrap: "wrap" }}>
+          <button className="ss-btn hl" onClick={() => goTo(idx + 1)}>Save & Next</button>
+          <button className="ss-btn" onClick={() => { setMarked((m) => new Set(m).add(q.card.id)); goTo(idx + 1); }}>
+            Mark for Review & Next
+          </button>
+          <button className="ss-btn ghost" onClick={() => clearAnswer(q.card.id)}>
+            Clear Response
+          </button>
+          <span className="ss-spacer" />
+          <button className="ss-btn ghost" onClick={() => goTo(idx - 1)} disabled={idx === 0}>← Prev</button>
+          <button className="ss-btn ghost" onClick={() => goTo(idx + 1)} disabled={idx === questions.length - 1}>Next →</button>
+        </div>
+      </div>
+
+      <div className="ss-panel" style={{ width: "100%" }}>
+        <div className="ss-eyebrow" style={{ marginBottom: 10 }}>Question palette</div>
+        <div className="ss-palette">
+          {questions.map((qq, i) => (
+            <button key={qq.card.id} className={`ss-pal ss-pal-${state(i)}${i === idx ? " current" : ""}`}
+              onClick={() => goTo(i)} aria-label={`Go to question ${i + 1}`}>
+              {i + 1}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+        <button className="ss-btn hl" onClick={submit}>Submit test</button>
+        <button className="ss-btn ghost" onClick={onExit}>Cancel</button>
+      </div>
     </div>
   );
 }
@@ -1195,6 +1443,7 @@ const MODES = [
   { id: "match", name: "Match", blurb: "Timed pairs against the clock" },
   { id: "test", name: "Test", blurb: "Mixed, graded at the end" },
   { id: "review", name: "Review", blurb: "Spaced repetition queue" },
+  { id: "mock", name: "Mock Test", blurb: "Timed, NTA CBT-style" },
 ];
 
 function DeckDetail({ deck, onOpen, onPatch, onDelete, onBack, onImport }) {
@@ -1676,6 +1925,15 @@ export default function StudyStack() {
     setDecks((ds) => ds.map((d) => ({ ...d, cards: d.cards.filter((c) => c.id !== cardId) })));
   }, []);
 
+  // Clones get fresh ids + fresh SRS state — a focus deck for cards missed on
+  // a mock test, independent of the originals' own progress.
+  const createDeckFromCards = useCallback((title, cards) => {
+    const cloned = cards.map((c) => ({ ...c, id: uid(), flagged: false, srs: freshSrs() }));
+    const d = { id: uid(), title, subject: "From missed questions", cards: cloned };
+    setDecks((ds) => [d, ...ds]);
+    return d.id;
+  }, []);
+
   const allTags = useMemo(() => {
     const s = new Set();
     (decks || []).forEach((d) => d.cards.forEach((c) => cardTags(c).forEach((t) => s.add(t))));
@@ -1860,6 +2118,15 @@ export default function StudyStack() {
             {view.mode === "test" && (
               <Test deck={studyDeck} onGrade={gradeCard}
                 backLabel={view.deckId ? "Back to deck" : "Done"}
+                onExit={() => setView(view.deckId ? { screen: "deck", deckId: view.deckId } : { screen: "home" })} />
+            )}
+            {view.mode === "mock" && (
+              <MockTest deck={studyDeck} onGrade={gradeCard}
+                backLabel={view.deckId ? "Back to deck" : "Done"}
+                onCreateDeck={(cards) => {
+                  const id = createDeckFromCards(`${studyDeck.title} — Missed`, cards);
+                  setView({ screen: "deck", deckId: id });
+                }}
                 onExit={() => setView(view.deckId ? { screen: "deck", deckId: view.deckId } : { screen: "home" })} />
             )}
             {view.mode === "review" && (

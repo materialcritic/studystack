@@ -24804,6 +24804,18 @@
 .ss-score { font-family: var(--display); font-size: clamp(52px, 11vw, 84px); font-weight: 800; letter-spacing: -.05em; line-height: .9; }
 .ss-score small { font-family: var(--mono); font-size: 14px; font-weight: 400; letter-spacing: 0; color: var(--ink-soft); }
 
+/* ---------- mock test palette ---------- */
+.ss-palette { display: grid; grid-template-columns: repeat(auto-fill, minmax(38px, 1fr)); gap: 8px; }
+.ss-pal {
+  aspect-ratio: 1; border-radius: 4px; font-family: var(--mono); font-size: 12.5px; font-weight: 600;
+  border: 1.5px solid var(--rule); background: var(--card); color: var(--ink-soft);
+}
+.ss-pal-unvisited { border-style: dashed; }
+.ss-pal-visited { border-color: var(--ink); color: var(--ink); }
+.ss-pal-answered { border-color: var(--teal); background: var(--teal-soft); color: var(--ink); }
+.ss-pal-marked { border-color: var(--rose); background: var(--rose-soft); color: var(--ink); }
+.ss-pal.current { outline: 2.5px solid var(--navy); outline-offset: 1.5px; }
+
 /* ---------- grades ---------- */
 .ss-grades { display: grid; grid-template-columns: repeat(4, 1fr); gap: 9px; width: 100%; max-width: 620px; }
 .ss-grade { padding: 11px 8px; text-align: center; }
@@ -25497,44 +25509,50 @@ ${c.def}
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-link", onClick: onExit, children: "Leave game" })
     ] });
   }
+  function buildQuestions(deck, size) {
+    const picked = shuffle(deck.cards).slice(0, size);
+    return picked.map((c, i) => {
+      if (hasAuthoredOptions(c)) {
+        return {
+          card: c,
+          type: c.type === "assertion" ? "assertion" : "mc",
+          options: shuffle(c.options.filter((o) => o && o.trim())),
+          correctText: c.options[c.answer]
+        };
+      }
+      const canMC = deck.cards.length >= 4;
+      const type = canMC && i % 2 === 0 ? "mc" : "written";
+      if (type === "mc") {
+        const wrong = shuffle(deck.cards.filter((x) => x.id !== c.id)).slice(0, 3).map((x) => x.def);
+        return { card: c, type, options: shuffle([c.def, ...wrong]), correctText: c.def };
+      }
+      return { card: c, type, correctText: c.def };
+    });
+  }
+  var isMC = (t) => t === "mc" || t === "assertion";
+  var evaluateAnswer = (q, a) => isMC(q.type) ? { ok: a === q.correctText, missing: [] } : scoreWritten(a, q.card);
   function Test({ deck, onExit, onGrade, backLabel = "Back to deck" }) {
     const size = Math.min(10, deck.cards.length);
-    const questions = (0, import_react.useMemo)(() => {
-      const picked = shuffle(deck.cards).slice(0, size);
-      return picked.map((c, i) => {
-        if (hasAuthoredOptions(c)) {
-          return {
-            card: c,
-            type: c.type === "assertion" ? "assertion" : "mc",
-            options: shuffle(c.options.filter((o) => o && o.trim())),
-            correctText: c.options[c.answer]
-          };
-        }
-        const canMC = deck.cards.length >= 4;
-        const type = canMC && i % 2 === 0 ? "mc" : "written";
-        if (type === "mc") {
-          const wrong = shuffle(deck.cards.filter((x) => x.id !== c.id)).slice(0, 3).map((x) => x.def);
-          return { card: c, type, options: shuffle([c.def, ...wrong]), correctText: c.def };
-        }
-        return { card: c, type, correctText: c.def };
-      });
-    }, [deck.cards, size]);
+    const questions = (0, import_react.useMemo)(() => buildQuestions(deck, size), [deck.cards, size]);
     const [answers, setAnswers] = (0, import_react.useState)({});
     const [graded, setGraded] = (0, import_react.useState)(false);
-    const isMC = (t) => t === "mc" || t === "assertion";
-    const evaluate = (q, a) => isMC(q.type) ? { ok: a === q.correctText, missing: [] } : scoreWritten(a, q.card);
+    const answersRef = (0, import_react.useRef)({});
+    const setAnswer = (cid, val) => {
+      answersRef.current = { ...answersRef.current, [cid]: val };
+      setAnswers(answersRef.current);
+    };
     const results = (0, import_react.useMemo)(() => {
       if (!graded) return null;
       return questions.map((q) => {
         const a = answers[q.card.id] || "";
-        const { ok, missing } = evaluate(q, a);
+        const { ok, missing } = evaluateAnswer(q, a);
         return { ...q, given: a, ok, missing };
       });
     }, [graded, questions, answers]);
     const submit = () => {
       questions.forEach((q) => {
-        const a = answers[q.card.id] || "";
-        const { ok } = evaluate(q, a);
+        const a = answersRef.current[q.card.id] || "";
+        const { ok } = evaluateAnswer(q, a);
         onGrade(q.card.id, ok ? 3 : 1);
       });
       setGraded(true);
@@ -25578,7 +25596,7 @@ ${c.def}
             {
               className: cls,
               disabled: graded,
-              onClick: () => setAnswers((a) => ({ ...a, [q.card.id]: o })),
+              onClick: () => setAnswer(q.card.id, o),
               children: [
                 /* @__PURE__ */ (0, import_jsx_runtime.jsx)("kbd", { children: "ABCD"[j] }),
                 /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: o })
@@ -25603,7 +25621,7 @@ ${c.def}
             placeholder: "Your answer",
             "aria-label": `Answer for ${q.card.term}`,
             value: answers[q.card.id] || "",
-            onChange: (e) => setAnswers((a) => ({ ...a, [q.card.id]: e.target.value }))
+            onChange: (e) => setAnswer(q.card.id, e.target.value)
           }
         ),
         results && q.card.explanation ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "ss-note", style: { marginTop: 10 }, children: q.card.explanation }) : null
@@ -25612,6 +25630,234 @@ ${c.def}
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn hl", onClick: submit, children: "Submit test" }),
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn ghost", onClick: onExit, children: "Cancel" })
       ] }) : null
+    ] });
+  }
+  var MOCK_SIZE = 50;
+  var MOCK_SEC_PER_Q = 72;
+  var fmtClock = (sec) => {
+    const s = Math.max(0, Math.round(sec));
+    return `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+  };
+  function MockTest({ deck, onExit, onGrade, onCreateDeck, backLabel = "Back to deck" }) {
+    const size = Math.min(MOCK_SIZE, deck.cards.length);
+    const questions = (0, import_react.useMemo)(() => buildQuestions(deck, size), [deck.cards, size]);
+    const [idx, setIdx] = (0, import_react.useState)(0);
+    const [answers, setAnswers] = (0, import_react.useState)({});
+    const [marked, setMarked] = (0, import_react.useState)(() => /* @__PURE__ */ new Set());
+    const [visited, setVisited] = (0, import_react.useState)(() => new Set(questions[0] ? [questions[0].card.id] : []));
+    const [negMarking, setNegMarking] = (0, import_react.useState)(false);
+    const [submitted, setSubmitted] = (0, import_react.useState)(false);
+    const [timeLeft, setTimeLeft] = (0, import_react.useState)(() => questions.length * MOCK_SEC_PER_Q);
+    const [timePerQ, setTimePerQ] = (0, import_react.useState)({});
+    const startRef = (0, import_react.useRef)(Date.now());
+    const answersRef = (0, import_react.useRef)({});
+    const setAnswer = (cid, val) => {
+      answersRef.current = { ...answersRef.current, [cid]: val };
+      setAnswers(answersRef.current);
+    };
+    const clearAnswer = (cid) => {
+      const next = { ...answersRef.current };
+      delete next[cid];
+      answersRef.current = next;
+      setAnswers(next);
+    };
+    const q = questions[idx];
+    const flushTime = (0, import_react.useCallback)(() => {
+      const now = Date.now();
+      const cid = questions[idx]?.card.id;
+      if (cid) setTimePerQ((t) => ({ ...t, [cid]: (t[cid] || 0) + (now - startRef.current) }));
+      startRef.current = now;
+    }, [idx, questions]);
+    const goTo = (n) => {
+      if (n < 0 || n >= questions.length) return;
+      flushTime();
+      setIdx(n);
+      const cid = questions[n]?.card.id;
+      if (cid) setVisited((v) => new Set(v).add(cid));
+    };
+    const results = (0, import_react.useMemo)(() => {
+      if (!submitted) return null;
+      return questions.map((qq) => {
+        const a = answers[qq.card.id] || "";
+        const { ok, missing } = evaluateAnswer(qq, a);
+        return { ...qq, given: a, ok, missing };
+      });
+    }, [submitted, questions, answers]);
+    const submit = (0, import_react.useCallback)(() => {
+      flushTime();
+      questions.forEach((qq) => {
+        const a = answersRef.current[qq.card.id] || "";
+        const { ok } = evaluateAnswer(qq, a);
+        onGrade(qq.card.id, ok ? 3 : 1);
+      });
+      setSubmitted(true);
+    }, [flushTime, questions, onGrade]);
+    (0, import_react.useEffect)(() => {
+      if (submitted) return;
+      const t = setInterval(() => setTimeLeft((s) => Math.max(0, s - 1)), 1e3);
+      return () => clearInterval(t);
+    }, [submitted]);
+    (0, import_react.useEffect)(() => {
+      if (!submitted && timeLeft === 0) submit();
+    }, [timeLeft]);
+    if (!q) {
+      return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+        Done,
+        {
+          title: "Nothing to test",
+          lines: ["This deck has no cards."],
+          actions: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn hl", onClick: onExit, children: backLabel }, "e")]
+        }
+      );
+    }
+    if (submitted) {
+      let raw = 0;
+      results.forEach((r) => {
+        if (!r.given) return;
+        if (r.ok) raw += 1;
+        else if (negMarking && isMC(r.type)) raw -= 0.25;
+      });
+      const missed = results.filter((r) => !r.ok);
+      const byTag = {};
+      results.forEach((r) => {
+        const tags = cardTags(r.card).length ? cardTags(r.card) : ["untagged"];
+        tags.forEach((t) => {
+          byTag[t] = byTag[t] || { correct: 0, total: 0 };
+          byTag[t].total += 1;
+          if (r.ok) byTag[t].correct += 1;
+        });
+      });
+      const pct = Math.max(0, Math.round(raw / questions.length * 100));
+      return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-study", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-panel", style: { textAlign: "center" }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-eyebrow", children: "Mock test result" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-score", children: [
+            pct,
+            "%",
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("small", { children: [
+              " \xB7 ",
+              raw.toFixed(2),
+              " / ",
+              questions.length,
+              negMarking ? " \xB7 negative marking on" : ""
+            ] })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 10, justifyContent: "center", marginTop: 20, flexWrap: "wrap" }, children: [
+            missed.length ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { className: "ss-btn hl", onClick: () => onCreateDeck(missed.map((r) => r.card)), children: [
+              "Create deck from ",
+              missed.length,
+              " missed"
+            ] }) : null,
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn ghost", onClick: onExit, children: backLabel })
+          ] })
+        ] }),
+        Object.keys(byTag).length > 1 ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-panel", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-eyebrow", style: { marginBottom: 10 }, children: "Accuracy by tag" }),
+          Object.entries(byTag).sort((a, b) => a[0].localeCompare(b[0])).map(([t, s]) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "ss-note", style: { minWidth: 110 }, children: t === "untagged" ? "untagged" : `#${t}` }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-bar", style: { flex: 1 }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("i", { style: { width: `${s.correct / s.total * 100}%` } }) }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "ss-count", children: [
+              s.correct,
+              "/",
+              s.total
+            ] })
+          ] }, t))
+        ] }) : null,
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-panel", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-eyebrow", style: { marginBottom: 10 }, children: "Per-question breakdown" }),
+          results.map((r, i) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-q", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-q-h", children: [
+              String(i + 1).padStart(2, "0"),
+              " \xB7 ",
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: `ss-tag ${r.ok ? "ok" : "no"}`, children: r.ok ? "Correct" : "Missed" }),
+              " \xB7 ",
+              fmtClock((timePerQ[r.card.id] || 0) / 1e3)
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "ss-q-p", children: r.card.term }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "ss-ans", children: r.correctText }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-you", children: [
+              "you wrote ",
+              r.given ? r.ok ? r.given : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("s", { children: r.given }) : "\u2014 blank \u2014"
+            ] })
+          ] }, r.card.id))
+        ] })
+      ] });
+    }
+    const state = (i) => {
+      const cid = questions[i].card.id;
+      if (marked.has(cid)) return "marked";
+      if (answers[cid]) return "answered";
+      if (visited.has(cid)) return "visited";
+      return "unvisited";
+    };
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-study", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-studybar", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "ss-clock", style: { fontSize: 18 }, children: fmtClock(timeLeft) }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "ss-count", children: [
+          "Question ",
+          idx + 1,
+          " of ",
+          questions.length
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "ss-spacer" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", { className: "ss-note", style: { display: "flex", alignItems: "center", gap: 6, cursor: "pointer" }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { type: "checkbox", checked: negMarking, onChange: (e) => setNegMarking(e.target.checked) }),
+          "Negative marking (\u22120.25)"
+        ] })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-panel", style: { width: "100%" }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-q-h", children: q.type === "assertion" ? "Assertion\u2013Reason" : q.type === "mc" ? "Multiple choice" : "Written" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "ss-q-p", children: q.card.term }),
+        isMC(q.type) ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-opts", children: q.options.map((o, j) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+          "button",
+          {
+            className: `ss-opt${answers[q.card.id] === o ? " on" : ""}`,
+            onClick: () => setAnswer(q.card.id, o),
+            children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("kbd", { children: "ABCD"[j] }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: o })
+            ]
+          },
+          j
+        )) }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+          "input",
+          {
+            className: "ss-input",
+            placeholder: "Your answer",
+            "aria-label": `Answer for ${q.card.term}`,
+            value: answers[q.card.id] || "",
+            onChange: (e) => setAnswer(q.card.id, e.target.value)
+          }
+        ),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 10, marginTop: 20, flexWrap: "wrap" }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn hl", onClick: () => goTo(idx + 1), children: "Save & Next" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn", onClick: () => {
+            setMarked((m) => new Set(m).add(q.card.id));
+            goTo(idx + 1);
+          }, children: "Mark for Review & Next" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn ghost", onClick: () => clearAnswer(q.card.id), children: "Clear Response" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "ss-spacer" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn ghost", onClick: () => goTo(idx - 1), disabled: idx === 0, children: "\u2190 Prev" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn ghost", onClick: () => goTo(idx + 1), disabled: idx === questions.length - 1, children: "Next \u2192" })
+        ] })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-panel", style: { width: "100%" }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-eyebrow", style: { marginBottom: 10 }, children: "Question palette" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-palette", children: questions.map((qq, i) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+          "button",
+          {
+            className: `ss-pal ss-pal-${state(i)}${i === idx ? " current" : ""}`,
+            onClick: () => goTo(i),
+            "aria-label": `Go to question ${i + 1}`,
+            children: i + 1
+          },
+          qq.card.id
+        )) })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", gap: 10, flexWrap: "wrap" }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn hl", onClick: submit, children: "Submit test" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn ghost", onClick: onExit, children: "Cancel" })
+      ] })
     ] });
   }
   function Review({ deck, onExit, onGrade, backLabel = "Back to deck", direction }) {
@@ -25681,7 +25927,8 @@ ${c.def}
     { id: "flashcards", name: "Flashcards", blurb: "Flip and sort by feel" },
     { id: "match", name: "Match", blurb: "Timed pairs against the clock" },
     { id: "test", name: "Test", blurb: "Mixed, graded at the end" },
-    { id: "review", name: "Review", blurb: "Spaced repetition queue" }
+    { id: "review", name: "Review", blurb: "Spaced repetition queue" },
+    { id: "mock", name: "Mock Test", blurb: "Timed, NTA CBT-style" }
   ];
   function DeckDetail({ deck, onOpen, onPatch, onDelete, onBack, onImport }) {
     const pct = Math.round(mastery(deck) * 100);
@@ -26277,6 +26524,12 @@ Photosynthesis              <- definition list
     const deleteCard = (0, import_react.useCallback)((cardId) => {
       setDecks((ds) => ds.map((d) => ({ ...d, cards: d.cards.filter((c) => c.id !== cardId) })));
     }, []);
+    const createDeckFromCards = (0, import_react.useCallback)((title, cards) => {
+      const cloned = cards.map((c) => ({ ...c, id: uid(), flagged: false, srs: freshSrs() }));
+      const d = { id: uid(), title, subject: "From missed questions", cards: cloned };
+      setDecks((ds) => [d, ...ds]);
+      return d.id;
+    }, []);
     const allTags = (0, import_react.useMemo)(() => {
       const s = /* @__PURE__ */ new Set();
       (decks || []).forEach((d) => d.cards.forEach((c) => cardTags(c).forEach((t) => s.add(t))));
@@ -26470,6 +26723,19 @@ Photosynthesis              <- definition list
               deck: studyDeck,
               onGrade: gradeCard,
               backLabel: view.deckId ? "Back to deck" : "Done",
+              onExit: () => setView(view.deckId ? { screen: "deck", deckId: view.deckId } : { screen: "home" })
+            }
+          ),
+          view.mode === "mock" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+            MockTest,
+            {
+              deck: studyDeck,
+              onGrade: gradeCard,
+              backLabel: view.deckId ? "Back to deck" : "Done",
+              onCreateDeck: (cards) => {
+                const id = createDeckFromCards(`${studyDeck.title} \u2014 Missed`, cards);
+                setView({ screen: "deck", deckId: id });
+              },
               onExit: () => setView(view.deckId ? { screen: "deck", deckId: view.deckId } : { screen: "home" })
             }
           ),
