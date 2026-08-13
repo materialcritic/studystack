@@ -24892,6 +24892,14 @@
   }
   var isDue = (c) => c.srs.due < nextRollover(Date.now());
   var dueCount = (d) => d.cards.filter(isDue).length;
+  var DAILY_NEW_CAP = 20;
+  var DAILY_REVIEW_CAP = 150;
+  function buildDailyQueue(decks) {
+    const due = decks.flatMap((d) => d.cards).filter(isDue);
+    const fresh = due.filter((c) => c.srs.reps === 0).slice(0, DAILY_NEW_CAP);
+    const seen = due.filter((c) => c.srs.reps > 0).slice(0, DAILY_REVIEW_CAP);
+    return [...fresh, ...seen];
+  }
   var mastery = (d) => d.cards.length ? d.cards.reduce((s, c) => s + Math.min(c.srs.stability / 21, 1), 0) / d.cards.length : 0;
   function humanGap(ms) {
     const days = ms / DAY;
@@ -26073,12 +26081,16 @@ Photosynthesis              <- definition list
       URL.revokeObjectURL(url);
     };
     const deck = decks && view.deckId ? decks.find((d) => d.id === view.deckId) : null;
+    const dailyQueue = (0, import_react.useMemo)(() => decks ? buildDailyQueue(decks) : [], [decks]);
     const studyDeck = (0, import_react.useMemo)(() => {
       if (view.screen !== "study" || !decks) return null;
       if (view.deckId) {
         if (!deck) return null;
         if (!view.tag) return deck;
         return { ...deck, cards: deck.cards.filter((c) => cardTags(c).includes(view.tag)) };
+      }
+      if (view.daily) {
+        return { id: "daily-queue", title: "Today's queue", subject: "Across all decks", cards: dailyQueue };
       }
       if (view.tag) {
         return {
@@ -26089,7 +26101,7 @@ Photosynthesis              <- definition list
         };
       }
       return null;
-    }, [view, decks, deck]);
+    }, [view, decks, deck, dailyQueue]);
     if (status === "loading") {
       return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: `ss${dark ? " dark" : ""}`, children: [
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("style", { children: CSS }),
@@ -26111,6 +26123,28 @@ Photosynthesis              <- definition list
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn sm ghost", onClick: () => setDark((d) => !d), "aria-label": "Toggle dark mode", children: dark ? "\u2600\uFE0F Light" : "\u{1F319} Dark" })
         ] }),
         view.screen === "home" ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+          dailyQueue.length ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+            "button",
+            {
+              className: "ss-btn hl",
+              style: { marginBottom: 26, padding: "16px 22px" },
+              onClick: () => setView({ screen: "study", mode: "review", daily: true }),
+              children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("strong", { style: { fontFamily: "var(--display)", fontSize: 17 }, children: [
+                  "Study everything due today \xB7 ",
+                  dailyQueue.length,
+                  " cards"
+                ] }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "ss-note", style: { display: "block", marginTop: 3 }, children: [
+                  "Pulled from every deck, capped at ",
+                  DAILY_NEW_CAP,
+                  " new / ",
+                  DAILY_REVIEW_CAP,
+                  " review \u2014 the rest rolls to tomorrow."
+                ] })
+              ]
+            }
+          ) : null,
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-sec-head", children: [
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", { children: "Your decks" }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "ss-spacer" }),

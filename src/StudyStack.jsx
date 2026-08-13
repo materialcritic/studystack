@@ -422,6 +422,18 @@ function nextRollover(ts) {
 }
 const isDue = (c) => c.srs.due < nextRollover(Date.now());
 const dueCount = (d) => d.cards.filter(isDue).length;
+
+// A global queue across every deck, capped so a multi-day backlog doesn't
+// dump hundreds of cards on you at once — extra due cards just roll to
+// tomorrow instead of being lost.
+const DAILY_NEW_CAP = 20;
+const DAILY_REVIEW_CAP = 150;
+function buildDailyQueue(decks) {
+  const due = decks.flatMap((d) => d.cards).filter(isDue);
+  const fresh = due.filter((c) => c.srs.reps === 0).slice(0, DAILY_NEW_CAP);
+  const seen = due.filter((c) => c.srs.reps > 0).slice(0, DAILY_REVIEW_CAP);
+  return [...fresh, ...seen];
+}
 const mastery = (d) =>
   d.cards.length ? d.cards.reduce((s, c) => s + Math.min(c.srs.stability / 21, 1), 0) / d.cards.length : 0;
 
@@ -1500,12 +1512,17 @@ export default function StudyStack() {
 
   const deck = decks && view.deckId ? decks.find((d) => d.id === view.deckId) : null;
 
+  const dailyQueue = useMemo(() => (decks ? buildDailyQueue(decks) : []), [decks]);
+
   const studyDeck = useMemo(() => {
     if (view.screen !== "study" || !decks) return null;
     if (view.deckId) {
       if (!deck) return null;
       if (!view.tag) return deck;
       return { ...deck, cards: deck.cards.filter((c) => cardTags(c).includes(view.tag)) };
+    }
+    if (view.daily) {
+      return { id: "daily-queue", title: "Today's queue", subject: "Across all decks", cards: dailyQueue };
     }
     if (view.tag) {
       return {
@@ -1516,7 +1533,7 @@ export default function StudyStack() {
       };
     }
     return null;
-  }, [view, decks, deck]);
+  }, [view, decks, deck, dailyQueue]);
 
   if (status === "loading") {
     return (
@@ -1551,6 +1568,18 @@ export default function StudyStack() {
 
         {view.screen === "home" ? (
           <>
+            {dailyQueue.length ? (
+              <button className="ss-btn hl" style={{ marginBottom: 26, padding: "16px 22px" }}
+                onClick={() => setView({ screen: "study", mode: "review", daily: true })}>
+                <strong style={{ fontFamily: "var(--display)", fontSize: 17 }}>
+                  Study everything due today · {dailyQueue.length} cards
+                </strong>
+                <span className="ss-note" style={{ display: "block", marginTop: 3 }}>
+                  Pulled from every deck, capped at {DAILY_NEW_CAP} new / {DAILY_REVIEW_CAP} review — the rest rolls to tomorrow.
+                </span>
+              </button>
+            ) : null}
+
             <div className="ss-sec-head">
               <h2>Your decks</h2>
               <span className="ss-spacer" />
