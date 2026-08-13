@@ -24887,7 +24887,19 @@
   var DAY = 864e5;
   var uid = () => Math.random().toString(36).slice(2, 10);
   var freshSrs = () => ({ due: 0, stability: 0, difficulty: 5, reps: 0, lapses: 0 });
-  var mkCard = (term, def) => ({ id: uid(), term, def, tags: [], type: "basic", options: [], answer: null, explanation: "", srs: freshSrs() });
+  var mkCard = (term, def) => ({
+    id: uid(),
+    term,
+    def,
+    tags: [],
+    type: "basic",
+    options: [],
+    answer: null,
+    explanation: "",
+    keywords: [],
+    alternates: [],
+    srs: freshSrs()
+  });
   var ASSERTION_CODES = [
     "Both (A) and (R) are true and (R) is the correct explanation of (A)",
     "Both (A) and (R) are true but (R) is not the correct explanation of (A)",
@@ -24971,6 +24983,20 @@
     if (!g) return false;
     if (g === e) return true;
     return lev(g, e) <= Math.max(1, Math.floor(e.length * 0.12));
+  }
+  var KEYWORD_PASS_FRACTION = 0.8;
+  function scoreWritten(given, card) {
+    const keywords = (card.keywords || []).filter(Boolean);
+    if (!keywords.length) {
+      return { ok: checkAnswer(given, card.def), missing: [] };
+    }
+    const g = norm(given);
+    const missing = keywords.filter((k) => !g.includes(norm(k)));
+    const candidates = [card.def, ...card.alternates || []].filter(Boolean);
+    const fullMatch = candidates.some((c) => checkAnswer(given, c));
+    const required = Math.ceil(keywords.length * KEYWORD_PASS_FRACTION);
+    const ok = fullMatch || keywords.length - missing.length >= required;
+    return { ok, missing };
   }
   var shuffle = (arr) => {
     const a = [...arr];
@@ -25496,18 +25522,19 @@ ${c.def}
     const [answers, setAnswers] = (0, import_react.useState)({});
     const [graded, setGraded] = (0, import_react.useState)(false);
     const isMC = (t) => t === "mc" || t === "assertion";
+    const evaluate = (q, a) => isMC(q.type) ? { ok: a === q.correctText, missing: [] } : scoreWritten(a, q.card);
     const results = (0, import_react.useMemo)(() => {
       if (!graded) return null;
       return questions.map((q) => {
         const a = answers[q.card.id] || "";
-        const ok = isMC(q.type) ? a === q.correctText : checkAnswer(a, q.correctText);
-        return { ...q, given: a, ok };
+        const { ok, missing } = evaluate(q, a);
+        return { ...q, given: a, ok, missing };
       });
     }, [graded, questions, answers]);
     const submit = () => {
       questions.forEach((q) => {
         const a = answers[q.card.id] || "";
-        const ok = isMC(q.type) ? a === q.correctText : checkAnswer(a, q.correctText);
+        const { ok } = evaluate(q, a);
         onGrade(q.card.id, ok ? 3 : 1);
       });
       setGraded(true);
@@ -25564,7 +25591,11 @@ ${c.def}
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-you", children: [
             "you wrote ",
             q.given ? q.ok ? q.given : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("s", { children: q.given }) : "\u2014 blank \u2014"
-          ] })
+          ] }),
+          q.missing && q.missing.length ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-you", children: [
+            "missing: ",
+            q.missing.join(", ")
+          ] }) : null
         ] }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
           "input",
           {
@@ -25659,6 +25690,13 @@ ${c.def}
     const [selectedTag, setSelectedTag] = (0, import_react.useState)(null);
     const [leechOnly, setLeechOnly] = (0, import_react.useState)(false);
     const [direction, setDirection] = (0, import_react.useState)("forward");
+    const [expandedScoring, setExpandedScoring] = (0, import_react.useState)(() => /* @__PURE__ */ new Set());
+    const toggleScoring = (cid) => setExpandedScoring((s) => {
+      const next = new Set(s);
+      if (next.has(cid)) next.delete(cid);
+      else next.add(cid);
+      return next;
+    });
     const allTags = (0, import_react.useMemo)(() => {
       const s = /* @__PURE__ */ new Set();
       deck.cards.forEach((c) => cardTags(c).forEach((t) => s.add(t)));
@@ -25850,8 +25888,31 @@ ${c.def}
                 /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "assertion", children: "Assertion\u2013Reason" })
               ]
             }
-          )
+          ),
+          !c.type || c.type === "basic" ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-link", onClick: () => toggleScoring(c.id), children: expandedScoring.has(c.id) || (c.keywords || []).length ? "Scoring" : "+ scoring" }) : null
         ] }),
+        (!c.type || c.type === "basic") && (expandedScoring.has(c.id) || (c.keywords || []).length) ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-mcq-editor", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+            "input",
+            {
+              className: "ss-tag-input",
+              placeholder: "required keywords, comma separated (typed answers scored by coverage)",
+              value: (c.keywords || []).join(", "),
+              "aria-label": `Keywords for card ${i + 1}`,
+              onChange: (e) => setCard(c.id, "keywords", e.target.value.split(",").map((k) => k.trim()).filter(Boolean))
+            }
+          ),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+            "input",
+            {
+              className: "ss-tag-input",
+              placeholder: "acceptable alternate phrasings, separated by ;",
+              value: (c.alternates || []).join("; "),
+              "aria-label": `Alternates for card ${i + 1}`,
+              onChange: (e) => setCard(c.id, "alternates", e.target.value.split(";").map((a) => a.trim()).filter(Boolean))
+            }
+          )
+        ] }) : null,
         c.type === "mcq" || c.type === "assertion" ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-mcq-editor", children: [
           (c.options && c.options.length ? c.options : ["", "", "", ""]).map((opt, oi) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", { className: "ss-mcq-opt", children: [
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)(

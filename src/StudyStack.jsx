@@ -406,7 +406,10 @@ const uid = () => Math.random().toString(36).slice(2, 10);
 
 const freshSrs = () => ({ due: 0, stability: 0, difficulty: 5, reps: 0, lapses: 0 });
 
-const mkCard = (term, def) => ({ id: uid(), term, def, tags: [], type: "basic", options: [], answer: null, explanation: "", srs: freshSrs() });
+const mkCard = (term, def) => ({
+  id: uid(), term, def, tags: [], type: "basic", options: [], answer: null, explanation: "",
+  keywords: [], alternates: [], srs: freshSrs(),
+});
 
 const ASSERTION_CODES = [
   "Both (A) and (R) are true and (R) is the correct explanation of (A)",
@@ -530,6 +533,26 @@ function checkAnswer(given, expected) {
   if (!g) return false;
   if (g === e) return true;
   return lev(g, e) <= Math.max(1, Math.floor(e.length * 0.12));
+}
+
+// Typed recall against a full definition is brittle for long NET-style
+// answers (a 200-char definition allows ~24 edits either way). If the card
+// has authored keywords, score coverage instead: matching most of the
+// required terms counts as correct even if the exact wording is way off, and
+// missed keywords are surfaced so you know what to review.
+const KEYWORD_PASS_FRACTION = 0.8;
+function scoreWritten(given, card) {
+  const keywords = (card.keywords || []).filter(Boolean);
+  if (!keywords.length) {
+    return { ok: checkAnswer(given, card.def), missing: [] };
+  }
+  const g = norm(given);
+  const missing = keywords.filter((k) => !g.includes(norm(k)));
+  const candidates = [card.def, ...(card.alternates || [])].filter(Boolean);
+  const fullMatch = candidates.some((c) => checkAnswer(given, c));
+  const required = Math.ceil(keywords.length * KEYWORD_PASS_FRACTION);
+  const ok = fullMatch || (keywords.length - missing.length) >= required;
+  return { ok, missing };
 }
 
 const shuffle = (arr) => {
@@ -1006,20 +1029,21 @@ function Test({ deck, onExit, onGrade, backLabel = "Back to deck" }) {
   const [graded, setGraded] = useState(false);
 
   const isMC = (t) => t === "mc" || t === "assertion";
+  const evaluate = (q, a) => (isMC(q.type) ? { ok: a === q.correctText, missing: [] } : scoreWritten(a, q.card));
 
   const results = useMemo(() => {
     if (!graded) return null;
     return questions.map((q) => {
       const a = answers[q.card.id] || "";
-      const ok = isMC(q.type) ? a === q.correctText : checkAnswer(a, q.correctText);
-      return { ...q, given: a, ok };
+      const { ok, missing } = evaluate(q, a);
+      return { ...q, given: a, ok, missing };
     });
   }, [graded, questions, answers]);
 
   const submit = () => {
     questions.forEach((q) => {
       const a = answers[q.card.id] || "";
-      const ok = isMC(q.type) ? a === q.correctText : checkAnswer(a, q.correctText);
+      const { ok } = evaluate(q, a);
       onGrade(q.card.id, ok ? 3 : 1);
     });
     setGraded(true);
@@ -1070,6 +1094,7 @@ function Test({ deck, onExit, onGrade, backLabel = "Back to deck" }) {
               <>
                 <p className="ss-ans">{q.correctText}</p>
                 <div className="ss-you">you wrote {q.given ? (q.ok ? q.given : <s>{q.given}</s>) : "— blank —"}</div>
+                {q.missing && q.missing.length ? <div className="ss-you">missing: {q.missing.join(", ")}</div> : null}
               </>
             ) : (
               <input className="ss-input" placeholder="Your answer" aria-label={`Answer for ${q.card.term}`}
@@ -1179,6 +1204,12 @@ function DeckDetail({ deck, onOpen, onPatch, onDelete, onBack, onImport }) {
   const [selectedTag, setSelectedTag] = useState(null);
   const [leechOnly, setLeechOnly] = useState(false);
   const [direction, setDirection] = useState("forward");
+  const [expandedScoring, setExpandedScoring] = useState(() => new Set());
+  const toggleScoring = (cid) => setExpandedScoring((s) => {
+    const next = new Set(s);
+    if (next.has(cid)) next.delete(cid); else next.add(cid);
+    return next;
+  });
 
   const allTags = useMemo(() => {
     const s = new Set();
@@ -1319,7 +1350,22 @@ function DeckDetail({ deck, onOpen, onPatch, onDelete, onBack, onImport }) {
                   <option value="mcq">Multiple choice</option>
                   <option value="assertion">Assertion–Reason</option>
                 </select>
+                {(!c.type || c.type === "basic") ? (
+                  <button className="ss-link" onClick={() => toggleScoring(c.id)}>
+                    {expandedScoring.has(c.id) || (c.keywords || []).length ? "Scoring" : "+ scoring"}
+                  </button>
+                ) : null}
               </div>
+              {(!c.type || c.type === "basic") && (expandedScoring.has(c.id) || (c.keywords || []).length) ? (
+                <div className="ss-mcq-editor">
+                  <input className="ss-tag-input" placeholder="required keywords, comma separated (typed answers scored by coverage)"
+                    value={(c.keywords || []).join(", ")} aria-label={`Keywords for card ${i + 1}`}
+                    onChange={(e) => setCard(c.id, "keywords", e.target.value.split(",").map((k) => k.trim()).filter(Boolean))} />
+                  <input className="ss-tag-input" placeholder="acceptable alternate phrasings, separated by ;"
+                    value={(c.alternates || []).join("; ")} aria-label={`Alternates for card ${i + 1}`}
+                    onChange={(e) => setCard(c.id, "alternates", e.target.value.split(";").map((a) => a.trim()).filter(Boolean))} />
+                </div>
+              ) : null}
               {c.type === "mcq" || c.type === "assertion" ? (
                 <div className="ss-mcq-editor">
                   {(c.options && c.options.length ? c.options : ["", "", "", ""]).map((opt, oi) => (
