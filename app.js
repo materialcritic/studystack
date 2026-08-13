@@ -25598,6 +25598,12 @@ ${c.def}
       setCopied(true);
       setTimeout(() => setCopied(false), 1400);
     }, [card, reversed, flipped]);
+    const [editing, setEditing] = (0, import_react.useState)(false);
+    const saveEdit = (0, import_react.useCallback)((term, def) => {
+      if (!card) return;
+      onPatchCard(card.id, { term, def });
+      setEditing(false);
+    }, [card, onPatchCard]);
     (0, import_react.useEffect)(() => {
       const h = (e) => {
         if (e.key === " ") {
@@ -25653,10 +25659,12 @@ ${c.def}
         ),
         /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-side-actions", children: [
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn sm", onClick: copyCard, children: copied ? "Copied" : "Copy" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn sm", onClick: () => setEditing(true), children: "Edit" }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: `ss-btn sm${flagged.has(card.id) ? " hl" : ""}`, onClick: toggleFlag, children: flagged.has(card.id) ? "Flagged" : "Flag" }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn sm", onClick: removeCard, children: "Delete" })
         ] })
       ] }),
+      editing ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(EditCardSheet, { card, onClose: () => setEditing(false), onSave: saveEdit }) : null,
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-verdicts", children: [
         /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { className: "ss-btn ss-v-no", onClick: () => answer(false), children: [
           "Still learning ",
@@ -26764,6 +26772,48 @@ Photosynthesis              <- definition list
         ] })
       ] }, tag)) })
     ] });
+  }
+  function EditCardSheet({ card, onClose, onSave }) {
+    const [term, setTerm] = (0, import_react.useState)(card.term);
+    const [def, setDef] = (0, import_react.useState)(card.def);
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-sheet", onClick: onClose, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-sheet-in", onClick: (e) => e.stopPropagation(), children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { children: "Edit card" }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "Fix the term or definition without leaving the study session." }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+        "input",
+        {
+          className: "ss-field",
+          value: term,
+          autoFocus: true,
+          placeholder: "Term",
+          "aria-label": "Term",
+          onChange: (e) => setTerm(e.target.value)
+        }
+      ),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+        "textarea",
+        {
+          className: "ss-ta",
+          style: { minHeight: 100 },
+          value: def,
+          placeholder: "Definition",
+          "aria-label": "Definition",
+          onChange: (e) => setDef(e.target.value)
+        }
+      ),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-actions", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn ghost", onClick: onClose, children: "Cancel" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+          "button",
+          {
+            className: "ss-btn hl",
+            disabled: !term.trim() || !def.trim(),
+            onClick: () => onSave(term.trim(), def.trim()),
+            children: "Save"
+          }
+        )
+      ] })
+    ] }) });
   }
   function NewDeckSheet({ onClose, onCreate }) {
     const [title, setTitle] = (0, import_react.useState)("");

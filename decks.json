@@ -554,10 +554,10 @@
      "term": "Operation Parakram (2001-02)",
      "def": "A large-scale military mobilization after the 2001 Indian Parliament attack.",
      "srs": {
-      "due": 0,
-      "stability": 0,
+      "due": 1786924926605,
+      "stability": 3.2,
       "difficulty": 5,
-      "reps": 0,
+      "reps": 1,
       "lapses": 0
      }
     },
@@ -755,7 +755,7 @@
     },
     {
      "id": "mdc55sxb",
-     "term": "Robert Filmer (1588–1653)",
+     "term": "Robert Filmer (1588-1653)",
      "def": "He was an English political theorist known for his work \"Patriarcha\", where he argued for the divine right of kings.",
      "srs": {
       "due": 1786630547442,

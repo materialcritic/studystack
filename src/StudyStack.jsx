@@ -549,6 +549,13 @@ function Flashcards({ deck, onExit, onGrade, onPatchCard, onDeleteCard, backLabe
     setTimeout(() => setCopied(false), 1400);
   }, [card, reversed, flipped]);
 
+  const [editing, setEditing] = useState(false);
+  const saveEdit = useCallback((term, def) => {
+    if (!card) return;
+    onPatchCard(card.id, { term, def });
+    setEditing(false);
+  }, [card, onPatchCard]);
+
   useEffect(() => {
     const h = (e) => {
       if (e.key === " ") { e.preventDefault(); setFlipped((f) => !f); }
@@ -589,14 +596,14 @@ function Flashcards({ deck, onExit, onGrade, onPatchCard, onDeleteCard, backLabe
           onFlip={() => setFlipped((f) => !f)} />
         <div className="ss-side-actions">
           <button className="ss-btn sm" onClick={copyCard}>{copied ? "Copied" : "Copy"}</button>
+          <button className="ss-btn sm" onClick={() => setEditing(true)}>Edit</button>
           <button className={`ss-btn sm${flagged.has(card.id) ? " hl" : ""}`} onClick={toggleFlag}>
             {flagged.has(card.id) ? "Flagged" : "Flag"}
           </button>
           <button className="ss-btn sm" onClick={removeCard}>Delete</button>
-          {/* TODO: add an Edit action here so term/def can be corrected without
-              leaving Flashcards mode and going back to the deck's card table. */}
         </div>
       </div>
+      {editing ? <EditCardSheet card={card} onClose={() => setEditing(false)} onSave={saveEdit} /> : null}
       <div className="ss-verdicts">
         <button className="ss-btn ss-v-no" onClick={() => answer(false)}>Still learning <span className="ss-note">←</span></button>
         <button className="ss-btn ss-v-yes" onClick={() => answer(true)}>Got it <span className="ss-note">→</span></button>
@@ -1597,6 +1604,28 @@ function StatsView({ decks, onBack }) {
         ))}
       </div>
     </>
+  );
+}
+
+function EditCardSheet({ card, onClose, onSave }) {
+  const [term, setTerm] = useState(card.term);
+  const [def, setDef] = useState(card.def);
+  return (
+    <div className="ss-sheet" onClick={onClose}>
+      <div className="ss-sheet-in" onClick={(e) => e.stopPropagation()}>
+        <h3>Edit card</h3>
+        <p>Fix the term or definition without leaving the study session.</p>
+        <input className="ss-field" value={term} autoFocus placeholder="Term"
+          aria-label="Term" onChange={(e) => setTerm(e.target.value)} />
+        <textarea className="ss-ta" style={{ minHeight: 100 }} value={def} placeholder="Definition"
+          aria-label="Definition" onChange={(e) => setDef(e.target.value)} />
+        <div className="ss-actions">
+          <button className="ss-btn ghost" onClick={onClose}>Cancel</button>
+          <button className="ss-btn hl" disabled={!term.trim() || !def.trim()}
+            onClick={() => onSave(term.trim(), def.trim())}>Save</button>
+        </div>
+      </div>
+    </div>
   );
 }
 
