@@ -4,6 +4,15 @@
    JSX needs almost no changes. See INTEGRATION.md. */
 
 export const CSS = `
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #F7F7F5;
+}
+@media (prefers-color-scheme: dark) {
+  html, body { background: #16161A; }
+}
+
 .ss {
   /* ---- neutral surfaces ---- */
   --paper: #F7F7F5;
