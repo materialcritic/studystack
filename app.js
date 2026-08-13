@@ -25541,17 +25541,21 @@ ${c.def}
     ] });
   }
   function Flashcards({ deck, onExit, onGrade, onPatchCard, onDeleteCard, backLabel = "Back to deck", direction }) {
-    const [queue, setQueue] = (0, import_react.useState)(() => shuffle(deck.cards));
+    const byId = (0, import_react.useMemo)(() => Object.fromEntries(deck.cards.map((c) => [c.id, c])), [deck.cards]);
+    const [queue, setQueue] = (0, import_react.useState)(() => shuffle(deck.cards).map((c) => c.id));
     const [i, setI] = (0, import_react.useState)(0);
     const [flipped, setFlipped] = (0, import_react.useState)(false);
     const [missed, setMissed] = (0, import_react.useState)([]);
     const [flagged, setFlagged] = (0, import_react.useState)(() => new Set(deck.cards.filter((c) => c.flagged).map((c) => c.id)));
-    const card = queue[i];
+    const card = i < queue.length ? byId[queue[i]] || null : null;
     const reversed = card ? isReversedFor(card, direction) : false;
+    (0, import_react.useEffect)(() => {
+      if (i < queue.length && !byId[queue[i]]) setI((n) => n + 1);
+    }, [i, queue, byId]);
     const answer = (0, import_react.useCallback)((known) => {
       if (!card) return;
       onGrade(card.id, known ? 3 : 1);
-      if (!known) setMissed((m) => [...m, card]);
+      if (!known) setMissed((m) => [...m, card.id]);
       setFlipped(false);
       setI((n) => n + 1);
     }, [card, onGrade]);
@@ -25570,7 +25574,7 @@ ${c.def}
       if (!card) return;
       if (!confirm(`Delete "${card.term}"? This can't be undone.`)) return;
       onDeleteCard(card.id);
-      setQueue((q) => q.filter((c) => c.id !== card.id));
+      setQueue((q) => q.filter((id) => id !== card.id));
       setFlipped(false);
     }, [card, onDeleteCard]);
     (0, import_react.useEffect)(() => {
@@ -25590,7 +25594,7 @@ ${c.def}
         Done,
         {
           title: `${queue.length - missed.length}/${queue.length}`,
-          lines: [missed.length ? `Still learning: ${missed.map((c) => c.term).join(", ")}` : "Everything marked known."],
+          lines: [missed.length ? `Still learning: ${missed.map((id) => byId[id]?.term).filter(Boolean).join(", ")}` : "Everything marked known."],
           actions: [
             missed.length ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { className: "ss-btn hl", onClick: () => {
               setQueue(shuffle(missed));
@@ -25602,7 +25606,7 @@ ${c.def}
               " missed"
             ] }, "r") : null,
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn", onClick: () => {
-              setQueue(shuffle(deck.cards));
+              setQueue(shuffle(deck.cards).map((c) => c.id));
               setMissed([]);
               setI(0);
             }, children: "Shuffle all" }, "a"),
@@ -25656,14 +25660,15 @@ ${c.def}
     const [sel, setSel] = (0, import_react.useState)(null);
     const [cleared, setCleared] = (0, import_react.useState)([]);
     const [bad, setBad] = (0, import_react.useState)(null);
-    const [t0] = (0, import_react.useState)(() => Date.now());
+    const t0 = (0, import_react.useRef)(Date.now());
     const [ms, setMs] = (0, import_react.useState)(0);
+    const priorBest = (0, import_react.useRef)(best);
     const finished = cleared.length === PAIRS;
     (0, import_react.useEffect)(() => {
       if (finished) return;
-      const id = setInterval(() => setMs(Date.now() - t0), 100);
+      const id = setInterval(() => setMs(Date.now() - t0.current), 100);
       return () => clearInterval(id);
-    }, [finished, t0]);
+    }, [finished]);
     (0, import_react.useEffect)(() => {
       if (finished) onBest(ms / 1e3);
     }, [finished]);
@@ -25694,9 +25699,11 @@ ${c.def}
         Done,
         {
           title: `${secs}s`,
-          lines: [best && best < ms / 1e3 ? `Your best is ${best.toFixed(1)}s.` : "New best time."],
+          lines: [priorBest.current && priorBest.current <= ms / 1e3 ? `Your best is ${priorBest.current.toFixed(1)}s.` : "New best time."],
           actions: [
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn hl", onClick: () => {
+              priorBest.current = best;
+              t0.current = Date.now();
               setTiles(build());
               setCleared([]);
               setSel(null);
@@ -25761,8 +25768,7 @@ ${c.def}
   var isMC = (t) => t === "mc" || t === "assertion";
   var evaluateAnswer = (q, a) => isMC(q.type) ? { ok: a === q.correctText, missing: [] } : scoreWritten(a, q.card);
   function Test({ deck, onExit, onGrade, backLabel = "Back to deck" }) {
-    const size = Math.min(10, deck.cards.length);
-    const questions = (0, import_react.useMemo)(() => buildQuestions(deck, size), [deck.cards, size]);
+    const [questions] = (0, import_react.useState)(() => buildQuestions(deck, Math.min(10, deck.cards.length)));
     const [answers, setAnswers] = (0, import_react.useState)({});
     const [graded, setGraded] = (0, import_react.useState)(false);
     const answersRef = (0, import_react.useRef)({});
@@ -25788,6 +25794,16 @@ ${c.def}
     };
     const answered = Object.values(answers).filter((v) => (v || "").trim()).length;
     const correct = results ? results.filter((r) => r.ok).length : 0;
+    if (!questions.length) {
+      return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+        Done,
+        {
+          title: "Nothing to test",
+          lines: ["This deck has no cards."],
+          actions: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn hl", onClick: onExit, children: backLabel }, "e")]
+        }
+      );
+    }
     return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-study", children: [
       graded ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-panel", style: { textAlign: "center", marginBottom: 4 }, children: [
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-eyebrow", children: "Result" }),
@@ -25868,8 +25884,7 @@ ${c.def}
     return `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
   };
   function MockTest({ deck, onExit, onGrade, onCreateDeck, backLabel = "Back to deck" }) {
-    const size = Math.min(MOCK_SIZE, deck.cards.length);
-    const questions = (0, import_react.useMemo)(() => buildQuestions(deck, size), [deck.cards, size]);
+    const [questions] = (0, import_react.useState)(() => buildQuestions(deck, Math.min(MOCK_SIZE, deck.cards.length)));
     const [idx, setIdx] = (0, import_react.useState)(0);
     const [answers, setAnswers] = (0, import_react.useState)({});
     const [marked, setMarked] = (0, import_react.useState)(() => /* @__PURE__ */ new Set());
@@ -26159,7 +26174,7 @@ ${c.def}
     { id: "review", name: "Review", blurb: "Spaced repetition queue" },
     { id: "mock", name: "Mock Test", blurb: "Timed, NTA CBT-style" }
   ];
-  function DeckDetail({ deck, onOpen, onPatch, onDelete, onBack, onImport }) {
+  function DeckDetail({ deck, onOpen, onUpdate, onDelete, onBack, onImport }) {
     const pct = Math.round(mastery(deck) * 100);
     const due = dueCount(deck);
     const [copied, setCopied] = (0, import_react.useState)("");
@@ -26185,7 +26200,7 @@ ${c.def}
     const visibleCards = leechOnly ? leeches : selectedTag ? deck.cards.filter((c) => cardTags(c).includes(selectedTag)) : deck.cards;
     const onResetProgress = () => {
       if (!confirm(`Reset all progress for "${deck.title}"? Every card goes back to unseen \u2014 this can't be undone.`)) return;
-      onPatch({ ...deck, cards: deck.cards.map((c) => ({ ...c, srs: freshSrs() })) });
+      onUpdate((d) => ({ ...d, cards: d.cards.map((c) => ({ ...c, srs: freshSrs() })) }));
     };
     const onCopy = async () => {
       const md = toMarkdown(deck);
@@ -26214,18 +26229,21 @@ ${c.def}
       a.click();
       URL.revokeObjectURL(url);
     };
-    const setCard = (cid, field, value) => onPatch({ ...deck, cards: deck.cards.map((c) => c.id === cid ? { ...c, [field]: value } : c) });
-    const setType = (c, type) => {
+    const mapCard = (cid, fn) => onUpdate((d) => ({ ...d, cards: d.cards.map((c) => c.id === cid ? fn(c) : c) }));
+    const setCard = (cid, field, value) => mapCard(cid, (c) => ({ ...c, [field]: value }));
+    const setType = (cid, type) => mapCard(cid, (c) => {
       const patch = { type };
       if (type === "assertion" && !(c.options || []).some((o) => o && o.trim())) patch.options = [...ASSERTION_CODES];
       else if (type === "mcq" && !(c.options || []).length) patch.options = ["", "", "", ""];
-      onPatch({ ...deck, cards: deck.cards.map((x) => x.id === c.id ? { ...x, ...patch } : x) });
-    };
-    const setOption = (c, idx, value) => {
+      return { ...c, ...patch };
+    });
+    const setOption = (cid, idx, value) => mapCard(cid, (c) => {
       const opts = c.options && c.options.length ? [...c.options] : ["", "", "", ""];
       opts[idx] = value;
-      setCard(c.id, "options", opts);
-    };
+      return { ...c, options: opts };
+    });
+    const addCard = () => onUpdate((d) => ({ ...d, cards: [...d.cards, mkCard("", "")] }));
+    const removeCardFromDeck = (cid) => onUpdate((d) => ({ ...d, cards: d.cards.filter((c) => c.id !== cid) }));
     return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-sec-head", style: { marginBottom: 6 }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-link", onClick: onBack, children: "\u2190 All decks" }) }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-today", style: { marginBottom: 24 }, children: [
@@ -26311,7 +26329,7 @@ ${c.def}
         ] }),
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "ss-spacer" }),
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn sm", onClick: onImport, children: "Import .md" }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn sm hl", onClick: () => onPatch({ ...deck, cards: [...deck.cards, mkCard("", "")] }), children: "Add card" })
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn sm hl", onClick: addCard, children: "Add card" })
       ] }),
       visibleCards.length ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-rows", children: visibleCards.map((c, i) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-row", children: [
         /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-row-main", children: [
@@ -26343,7 +26361,7 @@ ${c.def}
             {
               className: "ss-x",
               "aria-label": `Delete card ${i + 1}`,
-              onClick: () => onPatch({ ...deck, cards: deck.cards.filter((x) => x.id !== c.id) }),
+              onClick: () => removeCardFromDeck(c.id),
               children: "\xD7"
             }
           )
@@ -26365,7 +26383,7 @@ ${c.def}
               className: "ss-type-select",
               value: c.type || "basic",
               "aria-label": `Type for card ${i + 1}`,
-              onChange: (e) => setType(c, e.target.value),
+              onChange: (e) => setType(c.id, e.target.value),
               children: [
                 /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "basic", children: "Basic" }),
                 /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "mcq", children: "Multiple choice" }),
@@ -26417,7 +26435,7 @@ ${c.def}
                 value: opt,
                 placeholder: `Option ${oi + 1}`,
                 "aria-label": `Option ${oi + 1} for card ${i + 1}`,
-                onChange: (e) => setOption(c, oi, e.target.value)
+                onChange: (e) => setOption(c.id, oi, e.target.value)
               }
             )
           ] }, oi)),
@@ -26819,7 +26837,9 @@ Photosynthesis              <- definition list
       }, 400);
       return () => clearTimeout(t);
     }, [decks, bests]);
-    const patchDeck = (next) => setDecks((ds) => ds.map((d) => d.id === next.id ? next : d));
+    const updateDeck = (0, import_react.useCallback)((deckId, updater) => {
+      setDecks((ds) => ds.map((d) => d.id === deckId ? updater(d) : d));
+    }, []);
     const gradeCard = (0, import_react.useCallback)((cardId, g) => {
       setDecks((ds) => ds.map((d) => ({
         ...d,
@@ -27056,7 +27076,7 @@ Photosynthesis              <- definition list
           {
             deck,
             onOpen: (mode, tag, direction) => setView({ screen: "study", deckId: deck.id, mode, tag: tag || void 0, direction }),
-            onPatch: patchDeck,
+            onUpdate: (updater) => updateDeck(deck.id, updater),
             onBack: () => setView({ screen: "home" }),
             onImport: () => setSheet("import"),
             onDelete: () => {
@@ -27141,7 +27161,7 @@ Photosynthesis              <- definition list
         {
           deck,
           onClose: () => setSheet(null),
-          onAppend: (cards) => patchDeck({ ...deck, cards: [...deck.cards, ...cards] }),
+          onAppend: (cards) => updateDeck(deck.id, (d) => ({ ...d, cards: [...d.cards, ...cards] })),
           onCreate: (newDecks) => {
             setDecks((ds) => [...newDecks, ...ds]);
             if (newDecks.length === 1) setView({ screen: "deck", deckId: newDecks[0].id });

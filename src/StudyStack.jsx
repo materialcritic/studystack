@@ -481,18 +481,29 @@ function Done({ title, lines, actions }) {
 /* ------------------------------ modes ------------------------------ */
 
 function Flashcards({ deck, onExit, onGrade, onPatchCard, onDeleteCard, backLabel = "Back to deck", direction }) {
-  const [queue, setQueue] = useState(() => shuffle(deck.cards));
+  // The queue holds ids, not card objects, and resolves them against the live
+  // deck on every render (the same pattern Review already used). Holding
+  // objects meant an edit made elsewhere — or a term fixed in the deck table —
+  // kept showing the stale text for the rest of the session.
+  const byId = useMemo(() => Object.fromEntries(deck.cards.map((c) => [c.id, c])), [deck.cards]);
+  const [queue, setQueue] = useState(() => shuffle(deck.cards).map((c) => c.id));
   const [i, setI] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [missed, setMissed] = useState([]);
   const [flagged, setFlagged] = useState(() => new Set(deck.cards.filter((c) => c.flagged).map((c) => c.id)));
-  const card = queue[i];
+  const card = i < queue.length ? byId[queue[i]] || null : null;
   const reversed = card ? isReversedFor(card, direction) : false;
+
+  // A card can vanish mid-session (deleted here, or in another tab). Skip past
+  // it rather than ending the session early on a dangling id.
+  useEffect(() => {
+    if (i < queue.length && !byId[queue[i]]) setI((n) => n + 1);
+  }, [i, queue, byId]);
 
   const answer = useCallback((known) => {
     if (!card) return;
     onGrade(card.id, known ? 3 : 1);
-    if (!known) setMissed((m) => [...m, card]);
+    if (!known) setMissed((m) => [...m, card.id]);
     setFlipped(false);
     setI((n) => n + 1);
   }, [card, onGrade]);
@@ -512,7 +523,7 @@ function Flashcards({ deck, onExit, onGrade, onPatchCard, onDeleteCard, backLabe
     if (!card) return;
     if (!confirm(`Delete "${card.term}"? This can't be undone.`)) return;
     onDeleteCard(card.id);
-    setQueue((q) => q.filter((c) => c.id !== card.id));
+    setQueue((q) => q.filter((id) => id !== card.id));
     setFlipped(false);
   }, [card, onDeleteCard]);
 
@@ -530,14 +541,16 @@ function Flashcards({ deck, onExit, onGrade, onPatchCard, onDeleteCard, backLabe
     return (
       <Done
         title={`${queue.length - missed.length}/${queue.length}`}
-        lines={[missed.length ? `Still learning: ${missed.map((c) => c.term).join(", ")}` : "Everything marked known."]}
+        lines={[missed.length
+          ? `Still learning: ${missed.map((id) => byId[id]?.term).filter(Boolean).join(", ")}`
+          : "Everything marked known."]}
         actions={[
           missed.length ? (
             <button key="r" className="ss-btn hl" onClick={() => { setQueue(shuffle(missed)); setMissed([]); setI(0); }}>
               Redo {missed.length} missed
             </button>
           ) : null,
-          <button key="a" className="ss-btn" onClick={() => { setQueue(shuffle(deck.cards)); setMissed([]); setI(0); }}>Shuffle all</button>,
+          <button key="a" className="ss-btn" onClick={() => { setQueue(shuffle(deck.cards).map((c) => c.id)); setMissed([]); setI(0); }}>Shuffle all</button>,
           <button key="e" className="ss-btn ghost" onClick={onExit}>{backLabel}</button>,
         ]}
       />
@@ -582,15 +595,20 @@ function Match({ deck, onExit, best, onBest, backLabel = "Back to deck" }) {
   const [sel, setSel] = useState(null);
   const [cleared, setCleared] = useState([]);
   const [bad, setBad] = useState(null);
-  const [t0] = useState(() => Date.now());
+  // A ref, not state: "Play again" has to reset it, otherwise round two's
+  // clock keeps counting from round one and records a bogus best time.
+  const t0 = useRef(Date.now());
   const [ms, setMs] = useState(0);
+  // onBest fires before the result screen renders, so reading `best` there
+  // reports "New best time" for a round that did not beat the old one.
+  const priorBest = useRef(best);
   const finished = cleared.length === PAIRS;
 
   useEffect(() => {
     if (finished) return;
-    const id = setInterval(() => setMs(Date.now() - t0), 100);
+    const id = setInterval(() => setMs(Date.now() - t0.current), 100);
     return () => clearInterval(id);
-  }, [finished, t0]);
+  }, [finished]);
 
   useEffect(() => {
     if (finished) onBest(ms / 1000);
@@ -613,9 +631,11 @@ function Match({ deck, onExit, best, onBest, backLabel = "Back to deck" }) {
     const secs = (ms / 1000).toFixed(1);
     return (
       <Done title={`${secs}s`}
-        lines={[best && best < ms / 1000 ? `Your best is ${best.toFixed(1)}s.` : "New best time."]}
+        lines={[priorBest.current && priorBest.current <= ms / 1000
+          ? `Your best is ${priorBest.current.toFixed(1)}s.`
+          : "New best time."]}
         actions={[
-          <button key="r" className="ss-btn hl" onClick={() => { setTiles(build()); setCleared([]); setSel(null); setMs(0); }}>Play again</button>,
+          <button key="r" className="ss-btn hl" onClick={() => { priorBest.current = best; t0.current = Date.now(); setTiles(build()); setCleared([]); setSel(null); setMs(0); }}>Play again</button>,
           <button key="e" className="ss-btn ghost" onClick={onExit}>{backLabel}</button>,
         ]} />
     );
@@ -667,8 +687,11 @@ const isMC = (t) => t === "mc" || t === "assertion";
 const evaluateAnswer = (q, a) => (isMC(q.type) ? { ok: a === q.correctText, missing: [] } : scoreWritten(a, q.card));
 
 function Test({ deck, onExit, onGrade, backLabel = "Back to deck" }) {
-  const size = Math.min(10, deck.cards.length);
-  const questions = useMemo(() => buildQuestions(deck, size), [deck.cards, size]);
+  // Built exactly once, at mount. A useMemo keyed on deck.cards would recompute
+  // the moment submit() grades the first card (grading replaces every card
+  // object, so deck.cards is a new array) — reshuffling buildQuestions and
+  // rendering results for questions the user never actually answered.
+  const [questions] = useState(() => buildQuestions(deck, Math.min(10, deck.cards.length)));
 
   const [answers, setAnswers] = useState({});
   const [graded, setGraded] = useState(false);
@@ -700,6 +723,14 @@ function Test({ deck, onExit, onGrade, backLabel = "Back to deck" }) {
 
   const answered = Object.values(answers).filter((v) => (v || "").trim()).length;
   const correct = results ? results.filter((r) => r.ok).length : 0;
+
+  // Without this, an empty deck divides by zero and renders "NaN%".
+  if (!questions.length) {
+    return (
+      <Done title="Nothing to test" lines={["This deck has no cards."]}
+        actions={[<button key="e" className="ss-btn hl" onClick={onExit}>{backLabel}</button>]} />
+    );
+  }
 
   return (
     <div className="ss-study">
@@ -774,8 +805,9 @@ const fmtClock = (sec) => {
 };
 
 function MockTest({ deck, onExit, onGrade, onCreateDeck, backLabel = "Back to deck" }) {
-  const size = Math.min(MOCK_SIZE, deck.cards.length);
-  const questions = useMemo(() => buildQuestions(deck, size), [deck.cards, size]);
+  // Frozen at mount — see the comment in Test. A 50-question paper silently
+  // reshuffling itself at submit is the worst possible time for it to happen.
+  const [questions] = useState(() => buildQuestions(deck, Math.min(MOCK_SIZE, deck.cards.length)));
 
   const [idx, setIdx] = useState(0);
   const [answers, setAnswers] = useState({});
@@ -1075,7 +1107,12 @@ const MODES = [
   { id: "mock", name: "Mock Test", blurb: "Timed, NTA CBT-style" },
 ];
 
-function DeckDetail({ deck, onOpen, onPatch, onDelete, onBack, onImport }) {
+// onUpdate takes an updater (deck) => deck rather than a finished deck object.
+// Passing a finished object built from the `deck` prop meant any change
+// committed between render and click — a grade from a study session, an edit in
+// another tab, an import — was silently overwritten. The updater always runs
+// against the current deck in state instead.
+function DeckDetail({ deck, onOpen, onUpdate, onDelete, onBack, onImport }) {
   const pct = Math.round(mastery(deck) * 100);
   const due = dueCount(deck);
   const [copied, setCopied] = useState("");
@@ -1107,7 +1144,7 @@ function DeckDetail({ deck, onOpen, onPatch, onDelete, onBack, onImport }) {
 
   const onResetProgress = () => {
     if (!confirm(`Reset all progress for "${deck.title}"? Every card goes back to unseen — this can't be undone.`)) return;
-    onPatch({ ...deck, cards: deck.cards.map((c) => ({ ...c, srs: freshSrs() })) });
+    onUpdate((d) => ({ ...d, cards: d.cards.map((c) => ({ ...c, srs: freshSrs() })) }));
   };
 
   const onCopy = async () => {
@@ -1137,21 +1174,30 @@ function DeckDetail({ deck, onOpen, onPatch, onDelete, onBack, onImport }) {
     a.click();
     URL.revokeObjectURL(url);
   };
-  const setCard = (cid, field, value) =>
-    onPatch({ ...deck, cards: deck.cards.map((c) => (c.id === cid ? { ...c, [field]: value } : c)) });
+  // All three of these derive the new card from the *current* card in state,
+  // never from the render-time `deck` prop.
+  const mapCard = (cid, fn) =>
+    onUpdate((d) => ({ ...d, cards: d.cards.map((c) => (c.id === cid ? fn(c) : c)) }));
 
-  const setType = (c, type) => {
-    const patch = { type };
-    if (type === "assertion" && !(c.options || []).some((o) => o && o.trim())) patch.options = [...ASSERTION_CODES];
-    else if (type === "mcq" && !(c.options || []).length) patch.options = ["", "", "", ""];
-    onPatch({ ...deck, cards: deck.cards.map((x) => (x.id === c.id ? { ...x, ...patch } : x)) });
-  };
+  const setCard = (cid, field, value) => mapCard(cid, (c) => ({ ...c, [field]: value }));
 
-  const setOption = (c, idx, value) => {
-    const opts = (c.options && c.options.length ? [...c.options] : ["", "", "", ""]);
-    opts[idx] = value;
-    setCard(c.id, "options", opts);
-  };
+  const setType = (cid, type) =>
+    mapCard(cid, (c) => {
+      const patch = { type };
+      if (type === "assertion" && !(c.options || []).some((o) => o && o.trim())) patch.options = [...ASSERTION_CODES];
+      else if (type === "mcq" && !(c.options || []).length) patch.options = ["", "", "", ""];
+      return { ...c, ...patch };
+    });
+
+  const setOption = (cid, idx, value) =>
+    mapCard(cid, (c) => {
+      const opts = c.options && c.options.length ? [...c.options] : ["", "", "", ""];
+      opts[idx] = value;
+      return { ...c, options: opts };
+    });
+
+  const addCard = () => onUpdate((d) => ({ ...d, cards: [...d.cards, mkCard("", "")] }));
+  const removeCardFromDeck = (cid) => onUpdate((d) => ({ ...d, cards: d.cards.filter((c) => c.id !== cid) }));
 
   return (
     <>
@@ -1209,7 +1255,7 @@ function DeckDetail({ deck, onOpen, onPatch, onDelete, onBack, onImport }) {
         <h2>Cards{leechOnly ? " — leeches" : selectedTag ? ` — #${selectedTag}` : ""}</h2>
         <span className="ss-spacer" />
         <button className="ss-btn sm" onClick={onImport}>Import .md</button>
-        <button className="ss-btn sm hl" onClick={() => onPatch({ ...deck, cards: [...deck.cards, mkCard("", "")] })}>
+        <button className="ss-btn sm hl" onClick={addCard}>
           Add card
         </button>
       </div>
@@ -1225,14 +1271,14 @@ function DeckDetail({ deck, onOpen, onPatch, onDelete, onBack, onImport }) {
                 <textarea className="ss-cell def" rows={1} value={c.def} placeholder="Definition"
                   aria-label={`Definition ${i + 1}`} onChange={(e) => setCard(c.id, "def", e.target.value)} />
                 <button className="ss-x" aria-label={`Delete card ${i + 1}`}
-                  onClick={() => onPatch({ ...deck, cards: deck.cards.filter((x) => x.id !== c.id) })}>×</button>
+                  onClick={() => removeCardFromDeck(c.id)}>×</button>
               </div>
               <div className="ss-row-meta">
                 <input className="ss-tag-input" placeholder="tags, comma separated" value={cardTags(c).join(", ")}
                   aria-label={`Tags for card ${i + 1}`}
                   onChange={(e) => setCard(c.id, "tags", e.target.value.split(",").map((t) => t.trim()).filter(Boolean))} />
                 <select className="ss-type-select" value={c.type || "basic"} aria-label={`Type for card ${i + 1}`}
-                  onChange={(e) => setType(c, e.target.value)}>
+                  onChange={(e) => setType(c.id, e.target.value)}>
                   <option value="basic">Basic</option>
                   <option value="mcq">Multiple choice</option>
                   <option value="assertion">Assertion–Reason</option>
@@ -1262,7 +1308,7 @@ function DeckDetail({ deck, onOpen, onPatch, onDelete, onBack, onImport }) {
                         onChange={() => setCard(c.id, "answer", oi)} />
                       <textarea className="ss-mcq-opt-input" rows={1} value={opt} placeholder={`Option ${oi + 1}`}
                         aria-label={`Option ${oi + 1} for card ${i + 1}`}
-                        onChange={(e) => setOption(c, oi, e.target.value)} />
+                        onChange={(e) => setOption(c.id, oi, e.target.value)} />
                     </label>
                   ))}
                   <textarea className="ss-mcq-explain" rows={1} placeholder="Explanation (optional, shown after grading)"
@@ -1614,7 +1660,11 @@ export default function StudyStack() {
     return () => clearTimeout(t);
   }, [decks, bests]);
 
-  const patchDeck = (next) => setDecks((ds) => ds.map((d) => (d.id === next.id ? next : d)));
+  // Every deck mutation goes through an updater run against current state, so
+  // concurrent changes (a grade landing mid-edit) can't be clobbered.
+  const updateDeck = useCallback((deckId, updater) => {
+    setDecks((ds) => ds.map((d) => (d.id === deckId ? updater(d) : d)));
+  }, []);
 
   const gradeCard = useCallback((cardId, g) => {
     setDecks((ds) => ds.map((d) => ({
@@ -1849,7 +1899,7 @@ export default function StudyStack() {
           <DeckDetail
             deck={deck}
             onOpen={(mode, tag, direction) => setView({ screen: "study", deckId: deck.id, mode, tag: tag || undefined, direction })}
-            onPatch={patchDeck}
+            onUpdate={(updater) => updateDeck(deck.id, updater)}
             onBack={() => setView({ screen: "home" })}
             onImport={() => setSheet("import")}
             onDelete={() => {
@@ -1911,7 +1961,7 @@ export default function StudyStack() {
         <ImportSheet
           deck={deck}
           onClose={() => setSheet(null)}
-          onAppend={(cards) => patchDeck({ ...deck, cards: [...deck.cards, ...cards] })}
+          onAppend={(cards) => updateDeck(deck.id, (d) => ({ ...d, cards: [...d.cards, ...cards] }))}
           onCreate={(newDecks) => {
             setDecks((ds) => [...newDecks, ...ds]);
             if (newDecks.length === 1) setView({ screen: "deck", deckId: newDecks[0].id });
