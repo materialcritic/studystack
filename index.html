@@ -3,15 +3,19 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#F7F7F5" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#16161A" media="(prefers-color-scheme: dark)" />
   <title>StudyStack</title>
-  <meta name="theme-color" content="#16305A" />
   <link rel="manifest" href="/manifest.json" />
   <link rel="icon" href="/icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="/icon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" />
 </head>
 <body>
   <div id="root"></div>
-  <script src="/app.js?v=19"></script>
+  <script src="/app.js?v=20"></script>
   <script>
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js"));
