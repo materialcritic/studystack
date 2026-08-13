@@ -74,10 +74,10 @@
      "term": "1 December 1943",
      "def": "The Tehran Conference was a meeting between U.S. President Franklin Delano Roosevelt, British Prime Minister Winston Churchill, and Soviet Premier Joseph Stalin in Tehran, Iran, between November, 28 and December 1, 1943.",
      "srs": {
-      "due": 1786630547442,
-      "stability": 0.5,
+      "due": 1786727277098,
+      "stability": 0.9153499999999999,
       "difficulty": 6.4,
-      "reps": 1,
+      "reps": 2,
       "lapses": 0
      }
     },
@@ -650,10 +650,10 @@
      "term": "12 May 2014",
      "def": "16th Lok Sabha election was held in nine phases from 7 April to 12 May 2014.",
      "srs": {
-      "due": 1786630547442,
-      "stability": 0.5,
+      "due": 1786727290899,
+      "stability": 0.9153499999999999,
       "difficulty": 6.4,
-      "reps": 1,
+      "reps": 2,
       "lapses": 0
      }
     },
@@ -722,10 +722,10 @@
      "term": "31 October 2019",
      "def": "Jammu and Kashmir, after October 31, 2019, became a Union Territory with its legislative assembly dissolved.",
      "srs": {
-      "due": 0,
-      "stability": 0,
+      "due": 1786924677346,
+      "stability": 3.2,
       "difficulty": 5,
-      "reps": 0,
+      "reps": 1,
       "lapses": 0
      }
     },
@@ -1526,10 +1526,10 @@
      "term": "1 June 1996",
      "def": "H.D. Deve Gowda – 1 June, 1996–20 April, 1997.",
      "srs": {
-      "due": 0,
-      "stability": 0,
+      "due": 1786924670179,
+      "stability": 3.2,
       "difficulty": 5,
-      "reps": 0,
+      "reps": 1,
       "lapses": 0
      }
     },

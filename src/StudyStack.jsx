@@ -527,6 +527,28 @@ function Flashcards({ deck, onExit, onGrade, onPatchCard, onDeleteCard, backLabe
     setFlipped(false);
   }, [card, onDeleteCard]);
 
+  const [copied, setCopied] = useState(false);
+  const copyCard = useCallback(async () => {
+    if (!card) return;
+    const front = reversed ? card.def : card.term;
+    const back = reversed ? card.term : card.def;
+    const text = flipped ? back : front;
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand && document.execCommand("copy");
+      document.body.removeChild(ta);
+    }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1400);
+  }, [card, reversed, flipped]);
+
   useEffect(() => {
     const h = (e) => {
       if (e.key === " ") { e.preventDefault(); setFlipped((f) => !f); }
@@ -566,6 +588,7 @@ function Flashcards({ deck, onExit, onGrade, onPatchCard, onDeleteCard, backLabe
           flipped={flipped} remaining={queue.length - i}
           onFlip={() => setFlipped((f) => !f)} />
         <div className="ss-side-actions">
+          <button className="ss-btn sm" onClick={copyCard}>{copied ? "Copied" : "Copy"}</button>
           <button className={`ss-btn sm${flagged.has(card.id) ? " hl" : ""}`} onClick={toggleFlag}>
             {flagged.has(card.id) ? "Flagged" : "Flag"}
           </button>

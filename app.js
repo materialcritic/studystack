@@ -25577,6 +25577,27 @@ ${c.def}
       setQueue((q) => q.filter((id) => id !== card.id));
       setFlipped(false);
     }, [card, onDeleteCard]);
+    const [copied, setCopied] = (0, import_react.useState)(false);
+    const copyCard = (0, import_react.useCallback)(async () => {
+      if (!card) return;
+      const front = reversed ? card.def : card.term;
+      const back = reversed ? card.term : card.def;
+      const text = flipped ? back : front;
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand && document.execCommand("copy");
+        document.body.removeChild(ta);
+      }
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1400);
+    }, [card, reversed, flipped]);
     (0, import_react.useEffect)(() => {
       const h = (e) => {
         if (e.key === " ") {
@@ -25631,6 +25652,7 @@ ${c.def}
           }
         ),
         /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-side-actions", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn sm", onClick: copyCard, children: copied ? "Copied" : "Copy" }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: `ss-btn sm${flagged.has(card.id) ? " hl" : ""}`, onClick: toggleFlag, children: flagged.has(card.id) ? "Flagged" : "Flag" }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn sm", onClick: removeCard, children: "Delete" })
         ] })
