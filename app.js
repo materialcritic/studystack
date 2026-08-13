@@ -24694,6 +24694,8 @@
 }
 .ss-chip:hover { border-color: var(--ink); color: var(--ink); }
 .ss-chip.on { border-color: var(--ink); background: var(--hl); color: var(--ink); }
+.ss-chip.leech { border-color: var(--rose); color: var(--rose); }
+.ss-chip.leech.on { background: var(--rose-soft); border-color: var(--rose); color: var(--rose); }
 
 /* ---------- study surface ---------- */
 .ss-study { display: flex; flex-direction: column; align-items: center; gap: 20px; }
@@ -24926,11 +24928,20 @@
   var dueCount = (d) => d.cards.filter(isDue).length;
   var DAILY_NEW_CAP = 20;
   var DAILY_REVIEW_CAP = 150;
+  var LEECH_THRESHOLD = 6;
+  var isLeech = (c) => (c.srs.lapses || 0) >= LEECH_THRESHOLD;
   function buildDailyQueue(decks) {
     const due = decks.flatMap((d) => d.cards).filter(isDue);
     const fresh = due.filter((c) => c.srs.reps === 0).slice(0, DAILY_NEW_CAP);
-    const seen = due.filter((c) => c.srs.reps > 0).slice(0, DAILY_REVIEW_CAP);
+    const seen = due.filter((c) => c.srs.reps > 0 && !isLeech(c)).slice(0, DAILY_REVIEW_CAP);
     return [...fresh, ...seen];
+  }
+  function isReversedFor(card, direction) {
+    if (direction === "reverse") return true;
+    if (!direction || direction === "forward") return false;
+    let h = 0;
+    for (let i = 0; i < card.id.length; i++) h = h * 31 + card.id.charCodeAt(i) | 0;
+    return (h & 1) === 1;
   }
   var mastery = (d) => d.cards.length ? d.cards.reduce((s, c) => s + Math.min(c.srs.stability / 21, 1), 0) / d.cards.length : 0;
   function humanGap(ms) {
@@ -25184,7 +25195,7 @@ ${c.def}
       i
     )) });
   }
-  function Card({ front, back, flipped, onFlip, remaining = 0, label = "Term" }) {
+  function Card({ front, back, flipped, onFlip, remaining = 0, label = "Term", backLabel = "Definition" }) {
     const ghosts = Math.min(Math.max(remaining - 1, 0), 3);
     return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-stage", children: [
       Array.from({ length: ghosts }).map((_, i) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
@@ -25234,7 +25245,7 @@ ${c.def}
               }
             },
             children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-face-rule", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "ss-face-lab", children: "Definition" }) }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-face-rule", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "ss-face-lab", children: backLabel }) }),
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-face-mid", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: back }) }),
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-hint", children: "click to flip back" })
             ]
@@ -25262,13 +25273,14 @@ ${c.def}
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", gap: 10, justifyContent: "center", marginTop: 22, flexWrap: "wrap" }, children: actions })
     ] });
   }
-  function Flashcards({ deck, onExit, onGrade, onPatchCard, onDeleteCard, backLabel = "Back to deck" }) {
+  function Flashcards({ deck, onExit, onGrade, onPatchCard, onDeleteCard, backLabel = "Back to deck", direction }) {
     const [queue, setQueue] = (0, import_react.useState)(() => shuffle(deck.cards));
     const [i, setI] = (0, import_react.useState)(0);
     const [flipped, setFlipped] = (0, import_react.useState)(false);
     const [missed, setMissed] = (0, import_react.useState)([]);
     const [flagged, setFlagged] = (0, import_react.useState)(() => new Set(deck.cards.filter((c) => c.flagged).map((c) => c.id)));
     const card = queue[i];
+    const reversed = card ? isReversedFor(card, direction) : false;
     const answer = (0, import_react.useCallback)((known) => {
       if (!card) return;
       onGrade(card.id, known ? 3 : 1);
@@ -25338,8 +25350,10 @@ ${c.def}
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
           Card,
           {
-            front: card.term,
-            back: card.def,
+            front: reversed ? card.def : card.term,
+            back: reversed ? card.term : card.def,
+            label: reversed ? "Definition" : "Term",
+            backLabel: reversed ? "Term" : "Definition",
             flipped,
             remaining: queue.length - i,
             onFlip: () => setFlipped((f) => !f)
@@ -25569,7 +25583,7 @@ ${c.def}
       ] }) : null
     ] });
   }
-  function Review({ deck, onExit, onGrade, backLabel = "Back to deck" }) {
+  function Review({ deck, onExit, onGrade, backLabel = "Back to deck", direction }) {
     const [queue, setQueue] = (0, import_react.useState)(() => deck.cards.filter(isDue).map((c) => c.id));
     const [ahead, setAhead] = (0, import_react.useState)(false);
     const [shown, setShown] = (0, import_react.useState)(false);
@@ -25577,6 +25591,7 @@ ${c.def}
     const [total] = (0, import_react.useState)(() => deck.cards.filter(isDue).length);
     const byId = (0, import_react.useMemo)(() => Object.fromEntries(deck.cards.map((c) => [c.id, c])), [deck.cards]);
     const card = queue.length ? byId[queue[0]] : null;
+    const reversed = card ? isReversedFor(card, direction) : false;
     const startAhead = () => {
       setQueue(shuffle(deck.cards).slice(0, 10).map((c) => c.id));
       setAhead(true);
@@ -25615,8 +25630,9 @@ ${c.def}
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
         Card,
         {
-          front: card.term,
-          back: card.def,
+          front: reversed ? card.def : card.term,
+          back: reversed ? card.term : card.def,
+          backLabel: reversed ? "Term" : "Definition",
           flipped: shown,
           remaining: queue.length,
           onFlip: () => setShown(true),
@@ -25641,15 +25657,18 @@ ${c.def}
     const due = dueCount(deck);
     const [copied, setCopied] = (0, import_react.useState)("");
     const [selectedTag, setSelectedTag] = (0, import_react.useState)(null);
+    const [leechOnly, setLeechOnly] = (0, import_react.useState)(false);
+    const [direction, setDirection] = (0, import_react.useState)("forward");
     const allTags = (0, import_react.useMemo)(() => {
       const s = /* @__PURE__ */ new Set();
       deck.cards.forEach((c) => cardTags(c).forEach((t) => s.add(t)));
       return [...s].sort();
     }, [deck.cards]);
+    const leeches = (0, import_react.useMemo)(() => deck.cards.filter(isLeech), [deck.cards]);
     (0, import_react.useEffect)(() => {
       if (selectedTag && !allTags.includes(selectedTag)) setSelectedTag(null);
     }, [allTags, selectedTag]);
-    const visibleCards = selectedTag ? deck.cards.filter((c) => cardTags(c).includes(selectedTag)) : deck.cards;
+    const visibleCards = leechOnly ? leeches : selectedTag ? deck.cards.filter((c) => cardTags(c).includes(selectedTag)) : deck.cards;
     const onResetProgress = () => {
       if (!confirm(`Reset all progress for "${deck.title}"? Every card goes back to unseen \u2014 this can't be undone.`)) return;
       onPatch({ ...deck, cards: deck.cards.map((c) => ({ ...c, srs: freshSrs() })) });
@@ -25706,12 +25725,15 @@ ${c.def}
         ] }),
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Pile, { n: Math.min(5, Math.max(2, Math.ceil(deck.cards.length / 3))) })
       ] }),
-      allTags.length ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-chips", style: { marginBottom: 14 }, children: [
+      allTags.length || leeches.length ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-chips", style: { marginBottom: 14 }, children: [
         allTags.map((t) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
           "button",
           {
             className: `ss-chip${selectedTag === t ? " on" : ""}`,
-            onClick: () => setSelectedTag((s) => s === t ? null : t),
+            onClick: () => {
+              setSelectedTag((s) => s === t ? null : t);
+              setLeechOnly(false);
+            },
             children: [
               "#",
               t
@@ -25719,13 +25741,36 @@ ${c.def}
           },
           t
         )),
-        selectedTag ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-link", onClick: () => setSelectedTag(null), children: "Clear filter" }) : null
+        leeches.length ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+          "button",
+          {
+            className: `ss-chip leech${leechOnly ? " on" : ""}`,
+            onClick: () => {
+              setLeechOnly((v) => !v);
+              setSelectedTag(null);
+            },
+            children: [
+              "\u26A0 ",
+              leeches.length,
+              " leech",
+              leeches.length === 1 ? "" : "es"
+            ]
+          }
+        ) : null,
+        selectedTag || leechOnly ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-link", onClick: () => {
+          setSelectedTag(null);
+          setLeechOnly(false);
+        }, children: "Clear filter" }) : null
       ] }) : null,
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-chips", style: { marginBottom: 14 }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "ss-note", children: "Direction" }),
+        [["forward", "Term \u2192 Def"], ["reverse", "Def \u2192 Term"], ["mixed", "Mixed"]].map(([d, label]) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: `ss-chip${direction === d ? " on" : ""}`, onClick: () => setDirection(d), children: label }, d))
+      ] }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-modes", children: MODES.map((m) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
         "button",
         {
           className: "ss-btn ss-mode",
-          onClick: () => onOpen(m.id, selectedTag),
+          onClick: () => onOpen(m.id, selectedTag, direction),
           disabled: !visibleCards.length,
           children: [
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("strong", { children: [
@@ -25740,7 +25785,7 @@ ${c.def}
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-sec-head", children: [
         /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("h2", { children: [
           "Cards",
-          selectedTag ? ` \u2014 #${selectedTag}` : ""
+          leechOnly ? " \u2014 leeches" : selectedTag ? ` \u2014 #${selectedTag}` : ""
         ] }),
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "ss-spacer" }),
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn sm", onClick: onImport, children: "Import .md" }),
@@ -26323,7 +26368,7 @@ Photosynthesis              <- definition list
           DeckDetail,
           {
             deck,
-            onOpen: (mode, tag) => setView({ screen: "study", deckId: deck.id, mode, tag: tag || void 0 }),
+            onOpen: (mode, tag, direction) => setView({ screen: "study", deckId: deck.id, mode, tag: tag || void 0, direction }),
             onPatch: patchDeck,
             onBack: () => setView({ screen: "home" }),
             onImport: () => setSheet("import"),
@@ -26344,6 +26389,7 @@ Photosynthesis              <- definition list
               onPatchCard: patchCard,
               onDeleteCard: deleteCard,
               backLabel: view.deckId ? "Back to deck" : "Done",
+              direction: view.direction,
               onExit: () => setView(view.deckId ? { screen: "deck", deckId: view.deckId } : { screen: "home" })
             }
           ),
@@ -26372,6 +26418,7 @@ Photosynthesis              <- definition list
               deck: studyDeck,
               onGrade: gradeCard,
               backLabel: view.deckId ? "Back to deck" : "Done",
+              direction: view.direction,
               onExit: () => setView(view.deckId ? { screen: "deck", deckId: view.deckId } : { screen: "home" })
             }
           )

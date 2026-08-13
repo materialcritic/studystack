@@ -208,6 +208,8 @@ const CSS = `
 }
 .ss-chip:hover { border-color: var(--ink); color: var(--ink); }
 .ss-chip.on { border-color: var(--ink); background: var(--hl); color: var(--ink); }
+.ss-chip.leech { border-color: var(--rose); color: var(--rose); }
+.ss-chip.leech.on { background: var(--rose-soft); border-color: var(--rose); color: var(--rose); }
 
 /* ---------- study surface ---------- */
 .ss-study { display: flex; flex-direction: column; align-items: center; gap: 20px; }
@@ -468,11 +470,28 @@ const dueCount = (d) => d.cards.filter(isDue).length;
 // tomorrow instead of being lost.
 const DAILY_NEW_CAP = 20;
 const DAILY_REVIEW_CAP = 150;
+
+// A card failed this many times isn't "hard", it's badly written — pull it
+// out of the automated daily grind (still reachable via a deck's own Review)
+// and prompt a rewrite instead of hammering it forever.
+const LEECH_THRESHOLD = 6;
+const isLeech = (c) => (c.srs.lapses || 0) >= LEECH_THRESHOLD;
+
 function buildDailyQueue(decks) {
   const due = decks.flatMap((d) => d.cards).filter(isDue);
   const fresh = due.filter((c) => c.srs.reps === 0).slice(0, DAILY_NEW_CAP);
-  const seen = due.filter((c) => c.srs.reps > 0).slice(0, DAILY_REVIEW_CAP);
+  const seen = due.filter((c) => c.srs.reps > 0 && !isLeech(c)).slice(0, DAILY_REVIEW_CAP);
   return [...fresh, ...seen];
+}
+
+// Deterministic per-card so a "mixed" session stays stable across re-renders
+// without needing extra state.
+function isReversedFor(card, direction) {
+  if (direction === "reverse") return true;
+  if (!direction || direction === "forward") return false;
+  let h = 0;
+  for (let i = 0; i < card.id.length; i++) h = (h * 31 + card.id.charCodeAt(i)) | 0;
+  return (h & 1) === 1;
 }
 const mastery = (d) =>
   d.cards.length ? d.cards.reduce((s, c) => s + Math.min(c.srs.stability / 21, 1), 0) / d.cards.length : 0;
@@ -743,7 +762,7 @@ function Pile({ n = 5, w = 132, h = 96 }) {
   );
 }
 
-function Card({ front, back, flipped, onFlip, remaining = 0, label = "Term" }) {
+function Card({ front, back, flipped, onFlip, remaining = 0, label = "Term", backLabel = "Definition" }) {
   const ghosts = Math.min(Math.max(remaining - 1, 0), 3);
   return (
     <div className="ss-stage">
@@ -766,7 +785,7 @@ function Card({ front, back, flipped, onFlip, remaining = 0, label = "Term" }) {
           <div className="ss-face back" onClick={onFlip} role="button" tabIndex={flipped ? 0 : -1}
             aria-hidden={!flipped} inert={!flipped ? "" : undefined}
             onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onFlip(); } }}>
-            <div className="ss-face-rule"><span className="ss-face-lab">Definition</span></div>
+            <div className="ss-face-rule"><span className="ss-face-lab">{backLabel}</span></div>
             <div className="ss-face-mid"><p>{back}</p></div>
             <div className="ss-hint">click to flip back</div>
           </div>
@@ -799,13 +818,14 @@ function Done({ title, lines, actions }) {
 
 /* ------------------------------ modes ------------------------------ */
 
-function Flashcards({ deck, onExit, onGrade, onPatchCard, onDeleteCard, backLabel = "Back to deck" }) {
+function Flashcards({ deck, onExit, onGrade, onPatchCard, onDeleteCard, backLabel = "Back to deck", direction }) {
   const [queue, setQueue] = useState(() => shuffle(deck.cards));
   const [i, setI] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [missed, setMissed] = useState([]);
   const [flagged, setFlagged] = useState(() => new Set(deck.cards.filter((c) => c.flagged).map((c) => c.id)));
   const card = queue[i];
+  const reversed = card ? isReversedFor(card, direction) : false;
 
   const answer = useCallback((known) => {
     if (!card) return;
@@ -866,7 +886,9 @@ function Flashcards({ deck, onExit, onGrade, onPatchCard, onDeleteCard, backLabe
     <div className="ss-study">
       <Bar done={i} total={queue.length} />
       <div className="ss-stage-row">
-        <Card front={card.term} back={card.def} flipped={flipped} remaining={queue.length - i}
+        <Card front={reversed ? card.def : card.term} back={reversed ? card.term : card.def}
+          label={reversed ? "Definition" : "Term"} backLabel={reversed ? "Term" : "Definition"}
+          flipped={flipped} remaining={queue.length - i}
           onFlip={() => setFlipped((f) => !f)} />
         <div className="ss-side-actions">
           <button className={`ss-btn sm${flagged.has(card.id) ? " hl" : ""}`} onClick={toggleFlag}>
@@ -1069,7 +1091,7 @@ function Test({ deck, onExit, onGrade, backLabel = "Back to deck" }) {
   );
 }
 
-function Review({ deck, onExit, onGrade, backLabel = "Back to deck" }) {
+function Review({ deck, onExit, onGrade, backLabel = "Back to deck", direction }) {
   const [queue, setQueue] = useState(() => deck.cards.filter(isDue).map((c) => c.id));
   const [ahead, setAhead] = useState(false);
   const [shown, setShown] = useState(false);
@@ -1078,6 +1100,7 @@ function Review({ deck, onExit, onGrade, backLabel = "Back to deck" }) {
 
   const byId = useMemo(() => Object.fromEntries(deck.cards.map((c) => [c.id, c])), [deck.cards]);
   const card = queue.length ? byId[queue[0]] : null;
+  const reversed = card ? isReversedFor(card, direction) : false;
 
   const startAhead = () => {
     setQueue(shuffle(deck.cards).slice(0, 10).map((c) => c.id));
@@ -1121,7 +1144,8 @@ function Review({ deck, onExit, onGrade, backLabel = "Back to deck" }) {
   return (
     <div className="ss-study">
       <Bar done={count} total={ahead ? count + queue.length : total} />
-      <Card front={card.term} back={card.def} flipped={shown} remaining={queue.length}
+      <Card front={reversed ? card.def : card.term} back={reversed ? card.term : card.def}
+        backLabel={reversed ? "Term" : "Definition"} flipped={shown} remaining={queue.length}
         onFlip={() => setShown(true)} label={card.srs.reps ? `Seen ${card.srs.reps}×` : "New card"} />
       {shown ? (
         <div className="ss-grades">
@@ -1153,6 +1177,8 @@ function DeckDetail({ deck, onOpen, onPatch, onDelete, onBack, onImport }) {
   const due = dueCount(deck);
   const [copied, setCopied] = useState("");
   const [selectedTag, setSelectedTag] = useState(null);
+  const [leechOnly, setLeechOnly] = useState(false);
+  const [direction, setDirection] = useState("forward");
 
   const allTags = useMemo(() => {
     const s = new Set();
@@ -1160,11 +1186,15 @@ function DeckDetail({ deck, onOpen, onPatch, onDelete, onBack, onImport }) {
     return [...s].sort();
   }, [deck.cards]);
 
+  const leeches = useMemo(() => deck.cards.filter(isLeech), [deck.cards]);
+
   useEffect(() => {
     if (selectedTag && !allTags.includes(selectedTag)) setSelectedTag(null);
   }, [allTags, selectedTag]);
 
-  const visibleCards = selectedTag ? deck.cards.filter((c) => cardTags(c).includes(selectedTag)) : deck.cards;
+  const visibleCards = leechOnly ? leeches
+    : selectedTag ? deck.cards.filter((c) => cardTags(c).includes(selectedTag))
+    : deck.cards;
 
   const onResetProgress = () => {
     if (!confirm(`Reset all progress for "${deck.title}"? Every card goes back to unseen — this can't be undone.`)) return;
@@ -1219,21 +1249,38 @@ function DeckDetail({ deck, onOpen, onPatch, onDelete, onBack, onImport }) {
         <Pile n={Math.min(5, Math.max(2, Math.ceil(deck.cards.length / 3)))} />
       </div>
 
-      {allTags.length ? (
+      {allTags.length || leeches.length ? (
         <div className="ss-chips" style={{ marginBottom: 14 }}>
           {allTags.map((t) => (
             <button key={t} className={`ss-chip${selectedTag === t ? " on" : ""}`}
-              onClick={() => setSelectedTag((s) => (s === t ? null : t))}>
+              onClick={() => { setSelectedTag((s) => (s === t ? null : t)); setLeechOnly(false); }}>
               #{t}
             </button>
           ))}
-          {selectedTag ? <button className="ss-link" onClick={() => setSelectedTag(null)}>Clear filter</button> : null}
+          {leeches.length ? (
+            <button className={`ss-chip leech${leechOnly ? " on" : ""}`}
+              onClick={() => { setLeechOnly((v) => !v); setSelectedTag(null); }}>
+              ⚠ {leeches.length} leech{leeches.length === 1 ? "" : "es"}
+            </button>
+          ) : null}
+          {selectedTag || leechOnly ? (
+            <button className="ss-link" onClick={() => { setSelectedTag(null); setLeechOnly(false); }}>Clear filter</button>
+          ) : null}
         </div>
       ) : null}
 
+      <div className="ss-chips" style={{ marginBottom: 14 }}>
+        <span className="ss-note">Direction</span>
+        {[["forward", "Term → Def"], ["reverse", "Def → Term"], ["mixed", "Mixed"]].map(([d, label]) => (
+          <button key={d} className={`ss-chip${direction === d ? " on" : ""}`} onClick={() => setDirection(d)}>
+            {label}
+          </button>
+        ))}
+      </div>
+
       <div className="ss-modes">
         {MODES.map((m) => (
-          <button key={m.id} className="ss-btn ss-mode" onClick={() => onOpen(m.id, selectedTag)}
+          <button key={m.id} className="ss-btn ss-mode" onClick={() => onOpen(m.id, selectedTag, direction)}
             disabled={!visibleCards.length}>
             <strong>{m.name}{selectedTag ? ` · #${selectedTag}` : ""}</strong><span>{m.blurb}</span>
           </button>
@@ -1241,7 +1288,7 @@ function DeckDetail({ deck, onOpen, onPatch, onDelete, onBack, onImport }) {
       </div>
 
       <div className="ss-sec-head">
-        <h2>Cards{selectedTag ? ` — #${selectedTag}` : ""}</h2>
+        <h2>Cards{leechOnly ? " — leeches" : selectedTag ? ` — #${selectedTag}` : ""}</h2>
         <span className="ss-spacer" />
         <button className="ss-btn sm" onClick={onImport}>Import .md</button>
         <button className="ss-btn sm hl" onClick={() => onPatch({ ...deck, cards: [...deck.cards, mkCard("", "")] })}>
@@ -1738,7 +1785,7 @@ export default function StudyStack() {
         {view.screen === "deck" && deck ? (
           <DeckDetail
             deck={deck}
-            onOpen={(mode, tag) => setView({ screen: "study", deckId: deck.id, mode, tag: tag || undefined })}
+            onOpen={(mode, tag, direction) => setView({ screen: "study", deckId: deck.id, mode, tag: tag || undefined, direction })}
             onPatch={patchDeck}
             onBack={() => setView({ screen: "home" })}
             onImport={() => setSheet("import")}
@@ -1755,7 +1802,7 @@ export default function StudyStack() {
           <>
             {view.mode === "flashcards" && (
               <Flashcards deck={studyDeck} onGrade={gradeCard} onPatchCard={patchCard} onDeleteCard={deleteCard}
-                backLabel={view.deckId ? "Back to deck" : "Done"}
+                backLabel={view.deckId ? "Back to deck" : "Done"} direction={view.direction}
                 onExit={() => setView(view.deckId ? { screen: "deck", deckId: view.deckId } : { screen: "home" })} />
             )}
             {view.mode === "match" && (
@@ -1771,7 +1818,7 @@ export default function StudyStack() {
             )}
             {view.mode === "review" && (
               <Review deck={studyDeck} onGrade={gradeCard}
-                backLabel={view.deckId ? "Back to deck" : "Done"}
+                backLabel={view.deckId ? "Back to deck" : "Done"} direction={view.direction}
                 onExit={() => setView(view.deckId ? { screen: "deck", deckId: view.deckId } : { screen: "home" })} />
             )}
           </>
