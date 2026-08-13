@@ -796,6 +796,17 @@ function toMarkdown(deck) {
   return head + "\n" + deck.cards.map((c) => `## ${c.term}\n\n${c.def}\n`).join("\n");
 }
 
+// Anki's plain-text import expects tab-separated Front/Back(/Tags), one note
+// per line — no embedded tabs or newlines, so those get flattened to spaces.
+// This is a one-way export (no round-trip back into StudyStack's own schema)
+// so you're never locked into this tool if you outgrow it.
+const flattenForTSV = (s) => (s || "").replace(/[\t\n\r]+/g, " ").trim();
+function toAnkiTSV(deck) {
+  return deck.cards
+    .map((c) => [flattenForTSV(c.term), flattenForTSV(c.def), cardTags(c).join(" ")].join("\t"))
+    .join("\n");
+}
+
 /* ------------------------------ pieces ----------------------------- */
 
 function Pile({ n = 5, w = 132, h = 96 }) {
@@ -1517,6 +1528,15 @@ function DeckDetail({ deck, onOpen, onPatch, onDelete, onBack, onImport }) {
     }
     setTimeout(() => setCopied(""), 2200);
   };
+  const onExportAnki = () => {
+    const blob = new Blob([toAnkiTSV(deck)], { type: "text/tab-separated-values" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${deck.title.replace(/[^\w\- ]+/g, "").trim() || "deck"}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
   const setCard = (cid, field, value) =>
     onPatch({ ...deck, cards: deck.cards.map((c) => (c.id === cid ? { ...c, [field]: value } : c)) });
 
@@ -1669,6 +1689,7 @@ function DeckDetail({ deck, onOpen, onPatch, onDelete, onBack, onImport }) {
 
       <div style={{ marginTop: 26, display: "flex", gap: 18, flexWrap: "wrap" }}>
         <button className="ss-link" onClick={onCopy}>{copied || "Copy deck as markdown"}</button>
+        <button className="ss-link" onClick={onExportAnki}>Export for Anki (.txt)</button>
         <button className="ss-link" onClick={onResetProgress}>Reset progress</button>
         <button className="ss-link" onClick={onDelete}>Delete this deck</button>
       </div>

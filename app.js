@@ -25234,6 +25234,10 @@ _${deck.subject}_
 ${c.def}
 `).join("\n");
   }
+  var flattenForTSV = (s) => (s || "").replace(/[\t\n\r]+/g, " ").trim();
+  function toAnkiTSV(deck) {
+    return deck.cards.map((c) => [flattenForTSV(c.term), flattenForTSV(c.def), cardTags(c).join(" ")].join("	")).join("\n");
+  }
   function Pile({ n = 5, w = 132, h = 96 }) {
     return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-pile", style: { width: w, height: h }, children: Array.from({ length: n }).map((_, i) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
       "span",
@@ -25990,6 +25994,15 @@ ${c.def}
       }
       setTimeout(() => setCopied(""), 2200);
     };
+    const onExportAnki = () => {
+      const blob = new Blob([toAnkiTSV(deck)], { type: "text/tab-separated-values" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${deck.title.replace(/[^\w\- ]+/g, "").trim() || "deck"}.txt`;
+      a.click();
+      URL.revokeObjectURL(url);
+    };
     const setCard = (cid, field, value) => onPatch({ ...deck, cards: deck.cards.map((c) => c.id === cid ? { ...c, [field]: value } : c) });
     const setType = (c, type) => {
       const patch = { type };
@@ -26224,6 +26237,7 @@ ${c.def}
       ] }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginTop: 26, display: "flex", gap: 18, flexWrap: "wrap" }, children: [
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-link", onClick: onCopy, children: copied || "Copy deck as markdown" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-link", onClick: onExportAnki, children: "Export for Anki (.txt)" }),
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-link", onClick: onResetProgress, children: "Reset progress" }),
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-link", onClick: onDelete, children: "Delete this deck" })
       ] })
