@@ -557,6 +557,8 @@ function Flashcards({ deck, onExit, onGrade, onPatchCard, onDeleteCard, backLabe
             {flagged.has(card.id) ? "Flagged" : "Flag"}
           </button>
           <button className="ss-btn sm" onClick={removeCard}>Delete</button>
+          {/* TODO: add an Edit action here so term/def can be corrected without
+              leaving Flashcards mode and going back to the deck's card table. */}
         </div>
       </div>
       <div className="ss-verdicts">
