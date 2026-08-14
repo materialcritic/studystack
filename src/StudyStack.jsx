@@ -731,6 +731,103 @@ function buildQuestions(deck, size) {
 const isMC = (t) => t === "mc" || t === "assertion";
 const evaluateAnswer = (q, a) => (isMC(q.type) ? { ok: a === q.correctText, missing: [] } : scoreWritten(a, q.card));
 
+// Always-MCQ variant for Learn mode: authored options when the card has
+// them, otherwise distractors pulled from other cards' definitions (same
+// source as buildQuestions' "mc" branch), capped by how many other cards
+// actually exist rather than assuming there are always 3.
+function mcOptionsFor(deck, card) {
+  if (hasAuthoredOptions(card)) {
+    return { options: shuffle(card.options.filter((o) => o && o.trim())), correctText: card.options[card.answer] };
+  }
+  const others = deck.cards.filter((x) => x.id !== card.id);
+  const wrong = shuffle(others).slice(0, 3).map((x) => x.def);
+  return { options: shuffle([card.def, ...wrong]), correctText: card.def };
+}
+
+const LEARN_NEED = 2;
+
+function Learn({ deck, onExit, backLabel = "Back to deck" }) {
+  const [progress, setProgress] = useState(() => {
+    const p = {};
+    deck.cards.forEach((c) => { p[c.id] = 0; });
+    return p;
+  });
+  const [queue, setQueue] = useState(() => shuffle(deck.cards).map((c) => c.id));
+  const [selected, setSelected] = useState(null);
+  const [result, setResult] = useState(null);
+
+  const byId = useMemo(() => Object.fromEntries(deck.cards.map((c) => [c.id, c])), [deck.cards]);
+  const cardId = queue[0];
+  const card = cardId ? byId[cardId] : null;
+  const mastered = Object.values(progress).filter((v) => v >= LEARN_NEED).length;
+
+  // Rebuilt only when the card changes, not on every render, so the option
+  // order/distractors don't reshuffle out from under a pending answer.
+  const question = useMemo(() => (card ? mcOptionsFor(deck, card) : null), [card, deck]);
+
+  const pick = (opt) => {
+    if (result || !question) return;
+    setSelected(opt);
+    setResult({ ok: opt === question.correctText });
+  };
+
+  const advance = () => {
+    const ok = result.ok;
+    const score = ok ? (progress[cardId] || 0) + 1 : 0;
+    setProgress((p) => ({ ...p, [cardId]: score }));
+    setQueue((q) => (score >= LEARN_NEED ? q.slice(1) : [...q.slice(1), q[0]]));
+    setSelected(null);
+    setResult(null);
+  };
+
+  if (deck.cards.length < 2) {
+    return (
+      <Done title="Not enough cards" lines={["Learn mode needs at least 2 cards to build multiple-choice options."]}
+        actions={[<button key="e" className="ss-btn hl" onClick={onExit}>{backLabel}</button>]} />
+    );
+  }
+
+  if (!card) {
+    return (
+      <Done title="Learned" lines={[`All ${deck.cards.length} cards answered correctly ${LEARN_NEED}× in a row.`]}
+        actions={[<button key="e" className="ss-btn hl" onClick={onExit}>{backLabel}</button>]} />
+    );
+  }
+
+  return (
+    <div className="ss-study">
+      <Bar done={mastered} total={deck.cards.length} />
+      <div className="ss-panel" style={{ width: "100%" }}>
+        <div className="ss-q-h">Select the matching definition · {progress[cardId] || 0} of {LEARN_NEED} correct</div>
+        <p className="ss-q-p">{card.term}</p>
+        <div className="ss-opts">
+          {question.options.map((o, j) => {
+            let cls = "ss-opt";
+            if (result) {
+              if (o === question.correctText) cls += " right";
+              else if (o === selected) cls += " wrong";
+            } else if (selected === o) cls += " on";
+            return (
+              <button key={j} className={cls} disabled={!!result} onClick={() => pick(o)}>
+                <kbd>{"ABCD"[j]}</kbd><span>{o}</span>
+              </button>
+            );
+          })}
+        </div>
+        {result ? (
+          <div className="ss-feed" aria-live="polite">
+            <span className={`ss-tag ${result.ok ? "ok" : "no"}`}>{result.ok ? "Correct" : "Not quite"}</span>
+            <div style={{ marginTop: 16 }}>
+              <button className="ss-btn hl" onClick={advance}>Continue <span className="ss-note">↵</span></button>
+            </div>
+          </div>
+        ) : null}
+      </div>
+      <button className="ss-link" onClick={onExit}>Leave session</button>
+    </div>
+  );
+}
+
 function Test({ deck, onExit, onGrade, backLabel = "Back to deck" }) {
   // Built exactly once, at mount. A useMemo keyed on deck.cards would recompute
   // the moment submit() grades the first card (grading replaces every card
@@ -1146,6 +1243,7 @@ function Review({ deck, onExit, onGrade, backLabel = "Back to deck", direction }
 
 const MODES = [
   { id: "flashcards", name: "Flashcards", blurb: "Flip and sort by feel" },
+  { id: "learn", name: "Learn", blurb: "Multiple choice, repeat till mastered" },
   { id: "match", name: "Match", blurb: "Timed pairs against the clock" },
   { id: "test", name: "Test", blurb: "Mixed, graded at the end" },
   { id: "review", name: "Review", blurb: "Spaced repetition queue" },
@@ -1983,6 +2081,10 @@ export default function StudyStack() {
             {view.mode === "flashcards" && (
               <Flashcards deck={studyDeck} onGrade={gradeCard} onPatchCard={patchCard} onDeleteCard={deleteCard}
                 backLabel={view.deckId ? "Back to deck" : "Done"} direction={view.direction}
+                onExit={() => setView(view.deckId ? { screen: "deck", deckId: view.deckId } : { screen: "home" })} />
+            )}
+            {view.mode === "learn" && (
+              <Learn deck={studyDeck} backLabel={view.deckId ? "Back to deck" : "Done"}
                 onExit={() => setView(view.deckId ? { screen: "deck", deckId: view.deckId } : { screen: "home" })} />
             )}
             {view.mode === "match" && (

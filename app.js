@@ -25812,6 +25812,97 @@ ${c.def}
   }
   var isMC = (t) => t === "mc" || t === "assertion";
   var evaluateAnswer = (q, a) => isMC(q.type) ? { ok: a === q.correctText, missing: [] } : scoreWritten(a, q.card);
+  function mcOptionsFor(deck, card) {
+    if (hasAuthoredOptions(card)) {
+      return { options: shuffle(card.options.filter((o) => o && o.trim())), correctText: card.options[card.answer] };
+    }
+    const others = deck.cards.filter((x) => x.id !== card.id);
+    const wrong = shuffle(others).slice(0, 3).map((x) => x.def);
+    return { options: shuffle([card.def, ...wrong]), correctText: card.def };
+  }
+  var LEARN_NEED = 2;
+  function Learn({ deck, onExit, backLabel = "Back to deck" }) {
+    const [progress, setProgress] = (0, import_react.useState)(() => {
+      const p = {};
+      deck.cards.forEach((c) => {
+        p[c.id] = 0;
+      });
+      return p;
+    });
+    const [queue, setQueue] = (0, import_react.useState)(() => shuffle(deck.cards).map((c) => c.id));
+    const [selected, setSelected] = (0, import_react.useState)(null);
+    const [result, setResult] = (0, import_react.useState)(null);
+    const byId = (0, import_react.useMemo)(() => Object.fromEntries(deck.cards.map((c) => [c.id, c])), [deck.cards]);
+    const cardId = queue[0];
+    const card = cardId ? byId[cardId] : null;
+    const mastered = Object.values(progress).filter((v) => v >= LEARN_NEED).length;
+    const question = (0, import_react.useMemo)(() => card ? mcOptionsFor(deck, card) : null, [card, deck]);
+    const pick = (opt) => {
+      if (result || !question) return;
+      setSelected(opt);
+      setResult({ ok: opt === question.correctText });
+    };
+    const advance = () => {
+      const ok = result.ok;
+      const score = ok ? (progress[cardId] || 0) + 1 : 0;
+      setProgress((p) => ({ ...p, [cardId]: score }));
+      setQueue((q) => score >= LEARN_NEED ? q.slice(1) : [...q.slice(1), q[0]]);
+      setSelected(null);
+      setResult(null);
+    };
+    if (deck.cards.length < 2) {
+      return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+        Done,
+        {
+          title: "Not enough cards",
+          lines: ["Learn mode needs at least 2 cards to build multiple-choice options."],
+          actions: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn hl", onClick: onExit, children: backLabel }, "e")]
+        }
+      );
+    }
+    if (!card) {
+      return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+        Done,
+        {
+          title: "Learned",
+          lines: [`All ${deck.cards.length} cards answered correctly ${LEARN_NEED}\xD7 in a row.`],
+          actions: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn hl", onClick: onExit, children: backLabel }, "e")]
+        }
+      );
+    }
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-study", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Bar, { done: mastered, total: deck.cards.length }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-panel", style: { width: "100%" }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-q-h", children: [
+          "Select the matching definition \xB7 ",
+          progress[cardId] || 0,
+          " of ",
+          LEARN_NEED,
+          " correct"
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "ss-q-p", children: card.term }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "ss-opts", children: question.options.map((o, j) => {
+          let cls = "ss-opt";
+          if (result) {
+            if (o === question.correctText) cls += " right";
+            else if (o === selected) cls += " wrong";
+          } else if (selected === o) cls += " on";
+          return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { className: cls, disabled: !!result, onClick: () => pick(o), children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("kbd", { children: "ABCD"[j] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: o })
+          ] }, j);
+        }) }),
+        result ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-feed", "aria-live": "polite", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: `ss-tag ${result.ok ? "ok" : "no"}`, children: result.ok ? "Correct" : "Not quite" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { marginTop: 16 }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { className: "ss-btn hl", onClick: advance, children: [
+            "Continue ",
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "ss-note", children: "\u21B5" })
+          ] }) })
+        ] }) : null
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-link", onClick: onExit, children: "Leave session" })
+    ] });
+  }
   function Test({ deck, onExit, onGrade, backLabel = "Back to deck" }) {
     const [questions] = (0, import_react.useState)(() => buildQuestions(deck, Math.min(10, deck.cards.length)));
     const [answers, setAnswers] = (0, import_react.useState)({});
@@ -26214,6 +26305,7 @@ ${c.def}
   }
   var MODES = [
     { id: "flashcards", name: "Flashcards", blurb: "Flip and sort by feel" },
+    { id: "learn", name: "Learn", blurb: "Multiple choice, repeat till mastered" },
     { id: "match", name: "Match", blurb: "Timed pairs against the clock" },
     { id: "test", name: "Test", blurb: "Mixed, graded at the end" },
     { id: "review", name: "Review", blurb: "Spaced repetition queue" },
@@ -27184,6 +27276,14 @@ Photosynthesis              <- definition list
               onDeleteCard: deleteCard,
               backLabel: view.deckId ? "Back to deck" : "Done",
               direction: view.direction,
+              onExit: () => setView(view.deckId ? { screen: "deck", deckId: view.deckId } : { screen: "home" })
+            }
+          ),
+          view.mode === "learn" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+            Learn,
+            {
+              deck: studyDeck,
+              backLabel: view.deckId ? "Back to deck" : "Done",
               onExit: () => setView(view.deckId ? { screen: "deck", deckId: view.deckId } : { screen: "home" })
             }
           ),

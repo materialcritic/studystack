@@ -1,6 +1,4573 @@
 {
  "decks": [
   {
+   "id": "scob6dmp",
+   "title": "Mega Mix",
+   "subject": "",
+   "cards": [
+    {
+     "id": "x2nv6rrt",
+     "term": "elections to Panchayats are mentioned in Article",
+     "def": "243K",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "8rnrmi1f",
+     "term": "Election Commission of India is mentioned in article",
+     "def": "324",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "0d4p1vf2",
+     "term": "Right to vote is implied by the provisions of article",
+     "def": "326",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "njhq9jwi",
+     "term": "Election Commission became 3 member body in",
+     "def": "1989",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "sd2tn76c",
+     "term": "founder of the D M K party",
+     "def": "CN Annadurai",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "007nfn4x",
+     "term": "NOTA option was first used in _____ after SC judgement",
+     "def": "2013",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "oq6a3937",
+     "term": "The details of the process of impeachment of judges of the Supreme Court of India are given in",
+     "def": "judges ( Inquiry) Act 1968",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "p27eeiqv",
+     "term": "Atal Innovation Mission(AIM) was setup by NITI AYOG in which year",
+     "def": "2016",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "mb2lskne",
+     "term": "Limits the Size of Ministers - Which Amendment",
+     "def": "91st Amendment (2003)",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "1a1yzlmh",
+     "term": "ITU (International Telecommunication Union)",
+     "def": "1865",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "rog3xvvv",
+     "term": "UPU (Universal Postal Union)",
+     "def": "1874",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "v59awj12",
+     "term": "ICC (International Chamber of Commerce)",
+     "def": "1909",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "2ay5pntj",
+     "term": "ILO (International Labour Organization)",
+     "def": "1919",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "szpkf5yf",
+     "term": "IMF (International Monetary Fund) & World Bank Group",
+     "def": "1944",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "27ir9f65",
+     "term": "UNESCO (United Nations Educational, Scientific and Cultural Organization)",
+     "def": "1945",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "95hu8wq9",
+     "term": "FAO (Food and Agriculture Organization)",
+     "def": "1945",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "26jpviut",
+     "term": "WHO (World Health Organization)",
+     "def": "1948",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "qagoo08i",
+     "term": "IMO (International Maritime Organization)",
+     "def": "1948",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "yxyqtwmm",
+     "term": "WMO (World Meteorological Organization)",
+     "def": "1950",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "7pd2ijps",
+     "term": "IAEA (International Atomic Energy Agency)",
+     "def": "1957",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "dozgyh5h",
+     "term": "UNIDO (United Nations Industrial Development Organization)",
+     "def": "1966",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "qegd373z",
+     "term": "UN (United Nations)",
+     "def": "1945",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "5fk61dcf",
+     "term": "OPEC (Organization of the Petroleum Exporting Countries)",
+     "def": "1960",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "7d6ktq69",
+     "term": "NAM (Non-Aligned Movement)",
+     "def": "1961",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "9oij7m79",
+     "term": "G-77 (Group of 77)",
+     "def": "1964",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "254dnzfh",
+     "term": "ASEAN (Association of Southeast Asian Nations)",
+     "def": "1967",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "wumkk09p",
+     "term": "G-7 (Group of Seven)",
+     "def": "1975",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "l1inqdc0",
+     "term": "SAARC (South Asian Association for Regional Cooperation)",
+     "def": "1985",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "9t52tl2t",
+     "term": "APEC (Asia-Pacific Economic Cooperation)",
+     "def": "1989",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "0ic8czlc",
+     "term": "EU (European Union)",
+     "def": "1993",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "m2tfpaj1",
+     "term": "BIMSTEC (Bay of Bengal Initiative for Multi-Sectoral Technical and Economic Cooperation)",
+     "def": "1997",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "swg3jqdr",
+     "term": "IORA (Indian Ocean Rim Association)",
+     "def": "1997",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "q573l8oq",
+     "term": "G-20 (Group of Twenty)",
+     "def": "1999",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "dkeiv0z9",
+     "term": "BRICS (Brazil, Russia, India, China, South Africa)",
+     "def": "2001",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "kivn0f64",
+     "term": "SCO (Shanghai Cooperation Organization)",
+     "def": "2001",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "t5cyiab1",
+     "term": "African Union (AU)",
+     "def": "2002",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "i46u1lkj",
+     "term": "QUAD (Quadrilateral Security Dialogue)",
+     "def": "2007",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "ivxt22kc",
+     "term": "RCEP (Regional Comprehensive Economic Partnership)",
+     "def": "2022",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "f0ta1dfk",
+     "term": "NATO",
+     "def": "1949",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "8wsbpk0j",
+     "term": "THEORY OF RESIDUES",
+     "def": "PARETO",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "8lb9qdq1",
+     "term": "Political Formula",
+     "def": "Gaetano Mosca",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "yqlg1oa5",
+     "term": "14",
+     "def": "Right to Equality (Equality before law)",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "py130hc2",
+     "term": "15",
+     "def": "No discrimination on grounds of religion, race, caste, sex or place of birth.",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "m2kz7hs0",
+     "term": "17",
+     "def": "Untouchability",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "grjdb88y",
+     "term": "19",
+     "def": "Right to Freedom",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "2noscm1u",
+     "term": "21",
+     "def": "Right to Life & Liberty",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "4bxufs1g",
+     "term": "22",
+     "def": "Protection against arrest and prevention detention/ \"Necessary Evil\"",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "wbvrzu9y",
+     "term": "23",
+     "def": "Traffic and Forced Labour",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "90fi6owi",
+     "term": "330",
+     "def": "Reserves seats in the House of the People for Scheduled Castes (SCs) and Scheduled Tribes (STs).",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "9xiailfc",
+     "term": "24",
+     "def": "Employment of Children in Factories",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "t2bl9jhe",
+     "term": "25",
+     "def": "Right to freedom of religion",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "yr2rnur0",
+     "term": "29",
+     "def": "Rights to minorities to protect their lang, strict and culture.",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "9vqctxos",
+     "term": "30",
+     "def": "Establish educational institutions.",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "qcx96m3j",
+     "term": "31 B",
+     "def": "Shields legislation from being declared unconstitutional and void by putting it into 9th Schedule.",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "p12r6o3u",
+     "term": "32",
+     "def": "Right to Constitutional Remedy",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "slvvz49w",
+     "term": "51A",
+     "def": "Fundamental Duties",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "dqt601rg",
+     "term": "74",
+     "def": "President to act in accordance with the advice of the Council of Ministers with PM at the head.",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "9st321qq",
+     "term": "75",
+     "def": "Collective responsibilities of Council of Ministers to Lok Sabha",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "r8hu1bbi",
+     "term": "78",
+     "def": "PM: Role,Function,Duties",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "8ud5xqs6",
+     "term": "76",
+     "def": "AG of India",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "e9kcg5o9",
+     "term": "109",
+     "def": "Special Money Bill Procedure",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "job9jaom",
+     "term": "110",
+     "def": "Money Bill Definition",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "fk9sirso",
+     "term": "112",
+     "def": "Budget",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "regmuc8j",
+     "term": "124",
+     "def": "Establishment and constitution of Supreme Court",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "1nptjr6b",
+     "term": "143",
+     "def": "Power of President to Consult and take advise from the Supreme Court",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "w3mrckal",
+     "term": "148",
+     "def": "Comptroller and Auditor",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "iqqz55hc",
+     "term": "153",
+     "def": "Governor",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "0rmn74d3",
+     "term": "243A",
+     "def": "243O",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "cqevv2vt",
+     "term": "243 A",
+     "def": "Gram Sabha",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "ncvibso0",
+     "term": "243 K",
+     "def": "Elections to the Panchayats",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "cv2losih",
+     "term": "243P",
+     "def": "243ZG",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "tnti1ed8",
+     "term": "226",
+     "def": "Writ Petition for Hight Court",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "hpotp3kn",
+     "term": "280",
+     "def": "Finance Commission",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "1szoeq5g",
+     "term": "300A",
+     "def": "Right to Property",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "rvhv1a4k",
+     "term": "312",
+     "def": "All India Services",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "obcho3qk",
+     "term": "315",
+     "def": "UPSC (Union Public Service Commission)",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "wzny0gb2",
+     "term": "324",
+     "def": "Election Commission",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "hpio3ic4",
+     "term": "352",
+     "def": "National Emergency",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "o3gdmxhy",
+     "term": "356",
+     "def": "State Emergency",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "0qj67ub9",
+     "term": "360",
+     "def": "Financial Emergency",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "mamhhvp8",
+     "term": "359",
+     "def": "Suspension of Fundamental Rights during Emergencies",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "odmkfk24",
+     "term": "257",
+     "def": "Centre can give directions to state",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "evt2vlsu",
+     "term": "365",
+     "def": "Failure to comply with the direction mean Constitutional breakdown",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "p51xygdk",
+     "term": "368",
+     "def": "Power of Parliament to Amend the Constitution",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "naziid9s",
+     "term": "370",
+     "def": "J&K",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "436awe68",
+     "term": "371",
+     "def": "Maharashtra and Gujarat",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "9bvjiail",
+     "term": "371 A",
+     "def": "Nagaland",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "qi0c2ogi",
+     "term": "371 B",
+     "def": "Assam",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "7j13vky0",
+     "term": "371 C",
+     "def": "Manipur",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "kz2jsppo",
+     "term": "371 D&E",
+     "def": "Andhra Pradesh",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "w5bkwn16",
+     "term": "371 I",
+     "def": "Goa",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "mq856879",
+     "term": "50",
+     "def": "Separation of Judiciary from Executive",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "o17n68i9",
+     "term": "60",
+     "def": "Oath of President",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "zwkfsyt7",
+     "term": "61",
+     "def": "Impeachment of President",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "1g9oyiuf",
+     "term": "69",
+     "def": "Oath Vice President",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "vgldn9a0",
+     "term": "72",
+     "def": "Power of President to Grant Pardons",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "b0h2dxtt",
+     "term": "161",
+     "def": "Pardoning power of Governor",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "xveg2ahi",
+     "term": "86",
+     "def": "Right of President to address and send messages to Houses",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "vw3qf5xl",
+     "term": "102",
+     "def": "Disqualifications for membership of Parliament/house",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "ag0dl7jr",
+     "term": "103",
+     "def": "President is the final authority to decide on disqualification under Article 102(1) but speaking is the final authority on disqualification under article 102(2)",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "tbd3t1qk",
+     "term": "105",
+     "def": "Privileges and immunities to Parliament and its members",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "pcx0g0ah",
+     "term": "108",
+     "def": "Joint sitting of both the houses",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "838asm9l",
+     "term": "122",
+     "def": "Bar's the court to enquire into proceedings of Parliament",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "l8iqh5u1",
+     "term": "123",
+     "def": "Ordinance President",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "33690cpd",
+     "term": "213",
+     "def": "Ordinance Governor",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "qfpls7im",
+     "term": "141",
+     "def": "Law declared by Supreme Court to be binding on all courts.",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "5py1awnt",
+     "term": "142",
+     "def": "Complete Justice",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "uen79agb",
+     "term": "144",
+     "def": "Civil and Judicial Authorities to Act in aid of the Supreme Court",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "upef1ahf",
+     "term": "159",
+     "def": "Oath of Governor",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "venyhmp2",
+     "term": "165",
+     "def": "AG for State",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "bf94m5l1",
+     "term": "201",
+     "def": "Bills passed by State Legislature is reserved by Governor for consideration of President",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "hqljttdp",
+     "term": "214",
+     "def": "High Courts in States",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "sx4tmg38",
+     "term": "231",
+     "def": "Common Hight Courts for 2 or more states",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "7148ggnf",
+     "term": "233",
+     "def": "Appointment of District Judges",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "gz9fh0j3",
+     "term": "239",
+     "def": "Admins. of UT",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "xf0vjnlp",
+     "term": "239AA",
+     "def": "Special Provisions",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "bpc6btlq",
+     "term": "243ZH",
+     "def": "243ZT",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "l3r6jaea",
+     "term": "244",
+     "def": "Administration of Scheduled and Tribal Areas",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "j1odd0ci",
+     "term": "249",
+     "def": "Power of Parliament to legislate with respect to State List in National Interest",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "uyamsj0x",
+     "term": "250",
+     "def": "Power of Parliament to Legislate on State List if Emergency is under operation.",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "n3ja5hkf",
+     "term": "253",
+     "def": "Legislation for giving effect to international agreements.",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "l4jgay4z",
+     "term": "263",
+     "def": "Inter State Council",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "bckl1cxv",
+     "term": "312",
+     "def": "All India Council",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "ckbpogfn",
+     "term": "323A",
+     "def": "Administrative Tribunals",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "mtcjtv7r",
+     "term": "329",
+     "def": "Courts not to interfere in electoral matters",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "rvitubl1",
+     "term": "330",
+     "def": "Reservation for SC/ST in Lok Sabha",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "cv6kg2zy",
+     "term": "331",
+     "def": "Reservation for Anglo Indian in Lok Sabha. (Repealed by 104th Amendment)",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "j1idxlsg",
+     "term": "338",
+     "def": "National Commission for Scheduled Castes",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "606bpxto",
+     "term": "338A",
+     "def": "National Commission for Scheduled Tribes",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "5hrw5dsi",
+     "term": "338B",
+     "def": "National Commission for Backward Classes",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "mtchqtrz",
+     "term": "340",
+     "def": "Appointment of a Commission to Investigate the conditions of backward classes.",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "p7yj60fp",
+     "term": "341 & 342",
+     "def": "President notifying list of SC/ST in respect of a state.",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "v5223koy",
+     "term": "343",
+     "def": "Official language of the Union",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "0raiae1l",
+     "term": "275",
+     "def": "Allows the Parliament to provide grants to certain states. These grants are called grants",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "zy4ofsk3",
+     "term": "Club of Rome",
+     "def": "1968",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "01cp89oy",
+     "term": "Father of Indian Unrest",
+     "def": "Tilak",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "566cdfqx",
+     "term": "Lowering Age of Voting",
+     "def": "61st Amendment 1988",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "ctjkop31",
+     "term": "MERCOSUR",
+     "def": "1991",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "wsfviv9p",
+     "term": "123 Const. Amd",
+     "def": "National Commission for Backward Classes (NCBC)",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "4rvzm0za",
+     "term": "Last member state to join commonwealth of nations",
+     "def": "Gabon and Togo - 2022",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "hnnr0po4",
+     "term": "When was the UN Peace building Commission established?",
+     "def": "The UN Peacebuilding Commission was established in December 2005 to help countries in transition from conflict to peace.",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "jxfs8gpn",
+     "term": "Article 243D",
+     "def": "Reservation of seats in Panchayats",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "muqy5wuk",
+     "term": "If the office of the President falls vacant due to any reason, in how many months should it be filled ?",
+     "def": "6 months",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "vi8w1qsc",
+     "term": "Indian Union as a “federation with centralizing tendency”",
+     "def": "Ivor Jennings",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "cdsln36c",
+     "term": "Indian Constitution does not use the term",
+     "def": "‘Federation’ or ‘Federal’",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "s4oogeat",
+     "term": "The Contingency Fund in India has been placed at the disposal of",
+     "def": "President",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "i9w08tqv",
+     "term": "Oligarchy in the constituent Assembly",
+     "def": "Nehru, Patel, Prasad, Azad ( Granvile Austin)",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "sz3sn5f4",
+     "term": "Articles deals with Centre-State relations in India?",
+     "def": "Articles 245 to 255",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "v1x3mqi9",
+     "term": "No-Confidence motion, to be admitted in the Lok Sabha needs the support of",
+     "def": "50 members",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "l6x0k07d",
+     "term": "Sequence of 6 freedom under article 19",
+     "def": "Speech and expression, assemble peaceably, form associations, move freely, reside and settle any part of India, practise any profession - SAF-MRP",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "es2odhu0",
+     "term": "Preamble NOT part of Constitution",
+     "def": "Berubari",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "ynm6cba5",
+     "term": "5 subjects transferred from state to Concurrent list by 42nd Amendment- 1976",
+     "def": "Education",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "ec663rz1",
+     "term": "Which article empowers the Parliament to make provisions for a contingency when the offices of both the President and the Vice-President fall vacant?",
+     "def": "Article 70",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "87jm0lkz",
+     "term": "Who said Election Commission of India(ECI)- BULWARK of free and fair election",
+     "def": "Rudolph & Rudolph",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "tsr9x3ut",
+     "term": "Minister is the chairperson",
+     "def": "Zonal Councils",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "n2kwcnuc",
+     "term": "India’s Constitution was born more in fear and trepidation than in hope and inspiration",
+     "def": "Paul Brass",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "wawmyxo8",
+     "term": "The Fundamental Rights guaranteed by Articles ____ available to all persons",
+     "def": "14, 20, 21, 21A, 22, 23, 24, 25, 26, 27 and 28",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "h7b1rr0w",
+     "term": "FR only to Indian",
+     "def": "15, 16, 19, 29, 30",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "4thhttv3",
+     "term": "Maximum period of Emergency under Art 356",
+     "def": "3 years",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "3aw60xkj",
+     "term": "Misuse of Art. 356 and Centre-state relation Case",
+     "def": "Bommai case-1994",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "2t5y6ltm",
+     "term": "SC declared that amending powers of Parliament under Art. 368 - UNLIMITED",
+     "def": "Shankari Prasad Case - 1951",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "6k0jojdt",
+     "term": "Parliament cannot amend FR",
+     "def": "Golaknath Case - 1967",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "ik396kzj",
+     "term": "Parliament can amend any provision but cannot change basic structure of the Constitution",
+     "def": "Keshavananda Bharti 1973",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "vjbdin3i",
+     "term": "The doctrine of Prospective Overruling",
+     "def": "Golak Nath v. State of Punjab in 1967",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "j0761vyy",
+     "term": "All India Backward and Minority Communities Employees Federation - 1971",
+     "def": "Kanshi Ram",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "mi7opgir",
+     "term": "The Bhuria Committee - 1966",
+     "def": "PESA",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "wfvgcxjd",
+     "term": "The Deccan Education Society",
+     "def": "Tilak",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "925fb95f",
+     "term": "Forward Block",
+     "def": "Subhas Chandra Bose",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "mhblb9g4",
+     "term": "Brahmo Samaj, Atmiya Sabha, Calcutta Unitarian Association",
+     "def": "Raja Ram Mohan Roy",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "a0k0gx5c",
+     "term": "Abhinav Bharat",
+     "def": "Savarkar",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "7d56zowo",
+     "term": "Last state which was reorganised on the basis of language",
+     "def": "Punjab- 1966 | Andhra Pradesh was the 1st in 1953",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "3e05z917",
+     "term": "Chairman of 1st ARC-1966",
+     "def": "Morarji Desai",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "rzki17tx",
+     "term": "Chairman of the 2nd Administrative Reform Committee (ARC) - 2005",
+     "def": "Veerappa Moily",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "1nmsr2qv",
+     "term": "Satya Shodhak Samaj - 1873",
+     "def": "Jyotirao(Jyotiba) Phule",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "3kjxmmkk",
+     "term": "Which committee gave the criteria for excluding the creamy layer from OBCs",
+     "def": "Ramnandan Committee",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "08w7rk5k",
+     "term": "Champaran Movement",
+     "def": "1917",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "bqim2xu4",
+     "term": "Non-Cooperation Movement",
+     "def": "1920",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "4y3dk0yq",
+     "term": "All India Muslim League",
+     "def": "1906",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "ozawkb7c",
+     "term": "In 1989 who was the Prime Minister of India to implement the recommendations of the Mandal Commission for reservation of jobs for the OBCs?",
+     "def": "V.P.Singh",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "af31v08j",
+     "term": "The office of District Collector was created by",
+     "def": "Lord Warren Hastings",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "zjsa06iv",
+     "term": "Panchayats (Extension to Scheduled Areas), Act was enacted in the year",
+     "def": "1996",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "vcjhqbir",
+     "term": "Which state first implemented EWS quota?",
+     "def": "Gujarat",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "co23cjk0",
+     "term": "By which Act the office of Secretary of State for India was created?",
+     "def": "GOI Act 1858",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "x7au4rmr",
+     "term": "Inter state council - 1990",
+     "def": "Article 263",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "31uudmx7",
+     "term": "73rd amendments",
+     "def": "applicable to 5th schedule areas ( vide PESA Act-1996)",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "sf91zwnu",
+     "term": "but not to",
+     "def": "6th schedule states",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "nwborb3s",
+     "term": "Panchayati raj Extension to Scheduled Areas - Which Commite?",
+     "def": "Dilip Singh Bhuriya Committee (1994)",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "a1znelok",
+     "term": "ADM Jabalpur Case (1975)",
+     "def": "Art. 21 can be suspended by the declaration of Emergency- Justice H.R. Khanna dissented",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "mqf4bnkd",
+     "term": "MC Mehta Case (1986)",
+     "def": "Absolute Liability of factories/firms polluting environment",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "pvtwcngu",
+     "term": "Election commission became a 3 member body briefly in",
+     "def": "1989",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "y1h8hucb",
+     "term": "First Chief Election Commissioner of India",
+     "def": "Sukumar Sen",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "vvj31c4c",
+     "term": "Who defined Behaviouralism as protest movement within Political Science ?",
+     "def": "Robert A. Dahl",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "apawmwp5",
+     "term": "Ecological Approach",
+     "def": "Fred Riggs",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "nbvjbazj",
+     "term": "Informal Groups",
+     "def": "Human Relations Theory",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "yl6t03p8",
+     "term": "Functions of Executive",
+     "def": "Chester Bernard",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "172x6ai9",
+     "term": "Zone of Indifference",
+     "def": "Chester Bernard",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "g0ytlwwf",
+     "term": "Zone of Acceptance",
+     "def": "Simon",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "dxh5iij2",
+     "term": "Circular Response",
+     "def": "MP Follet",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "118ph2om",
+     "term": "Socialism means Slavery",
+     "def": "Lord Action",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "8mxso40r",
+     "term": "Introduction to Study of Public Admin (1926) - First Textbook",
+     "def": "Leonard D.White",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "n5lq9ugo",
+     "term": "Scientific Principles (Piece Rate,Shop Management, Cutting Metals)",
+     "def": "F.W Taylor",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "l4k5apy5",
+     "term": "Functional Foremanship",
+     "def": "F.W Taylor",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "bz3jywbd",
+     "term": "Administrative Behaviour 1947",
+     "def": "Simon",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "loqmnx9d",
+     "term": "POCCC (Planning, Organising, Commanding, Coordinating, Controlling) + Unity of Command",
+     "def": "Henry Fayol",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "cu0uk1em",
+     "term": "POSDCORD and Span of Control",
+     "def": "Lyndal Urwick",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "1pjyy8r0",
+     "term": "Scalar Principle and “Onward Industry” Book",
+     "def": "Mooney and Riley",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "pizrggps",
+     "term": "The New State (1920) + Circular Response",
+     "def": "MP Follett",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "j78j5105",
+     "term": "Human Relations Experiments",
+     "def": "Elton Mayo",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "2ayztu30",
+     "term": "Garbage Can Model (1972)",
+     "def": "Cohen, Olsen, March",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "u309ro58",
+     "term": "Systems Approach - Functions of Executive - Zone of Indifference",
+     "def": "Chester Bernard",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "icnyg1qg",
+     "term": "NPA - Minnowbrowk 1968 - Relevenace - Values - Social Equity - Change - Management - Worker Relations",
+     "def": "Dwight Waldo",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "5396gz11",
+     "term": "Taxes levied by the union but collected by the state",
+     "def": "Art 268",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "b9kpgpap",
+     "term": "Right to Equality (Article 14-18)",
+     "def": "14: Equality 15: no Discrimination\n\n16: equality of Opportunity\n17: Untouchability abolished\n\n18: Titles abolished",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "6uqdt6gi",
+     "term": "1950",
+     "def": "Constitution arranged Indian State into A, B, C, D groups",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "07pc50vd",
+     "term": "1953",
+     "def": "Andhra State created",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "u0sh6300",
+     "term": "1956",
+     "def": "States Reorganization Act Abolished A,B,C,D groupings",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "os9wo1la",
+     "term": "1960",
+     "def": "Bombay was divided into Maharashtra and Gujarat",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "8z2gdsmz",
+     "term": "1961",
+     "def": "Dadra and Nagar Haveli become the 7th UT",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "jhlbv7mp",
+     "term": "1962",
+     "def": "Goa, Daman and Diu acquired from Portuguese",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "ik46y3dj",
+     "term": "1963",
+     "def": "Nagaland carved out from the state of Assam",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "cxestxhw",
+     "term": "1966",
+     "def": "Punjab and Haryana created",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "2j9lmfhx",
+     "term": "1971",
+     "def": "HP was created",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "frcbfepk",
+     "term": "1972",
+     "def": "Meghalaya, Tripura, and Manipur became state",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "ad85a5oe",
+     "term": "1975",
+     "def": "Sikkim merged in India",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "4epbshg4",
+     "term": "1987",
+     "def": "Goa, Mizoram, and Arunachal Pradesh became States",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "foklb65a",
+     "term": "2000",
+     "def": "Chhattisgarh (from MP), Jharkhand (from Bihar), and Uttarakhand (from UP) became states",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "e5mug5wd",
+     "term": "2014",
+     "def": "Telangana (from Andhra Pradesh) became 29th State",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "4nr24kb1",
+     "term": "Dravidar Kazhagam",
+     "def": "1944",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "7mvuao8m",
+     "term": "Swatantra Party",
+     "def": "1959",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "xebdtizo",
+     "term": "PM Swamitva Yojana",
+     "def": "2021",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "5m3x10tt",
+     "term": "Kisan Samman Nidhi",
+     "def": "2018/19",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "st9ld9n7",
+     "term": "Mission Karmyogi",
+     "def": "Sept 2020",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "n452qja5",
+     "term": "Mudra Yojna",
+     "def": "2015",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "jt97gtgz",
+     "term": "G Rohini Committee (Committee to recommend sub categorization of other backward classes)",
+     "def": "2017",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "0ombsuzi",
+     "term": "Dinesh Goswami (1990) (1990) (1990) (1990) (1990)",
+     "def": "Election",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "220vns1z",
+     "term": "Tarkunde Committee (1974) (1974) (1974) (1974)",
+     "def": "Election",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "yodz6kw6",
+     "term": "Srikrishna Committee (2010) (2010) (2010)",
+     "def": "Look into the demand for separate statehood for Telangana",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "8hkztndn",
+     "term": "Indrajit Gupta Committee (1998)",
+     "def": "State Funding of Elections - Endorsed statefunding. - To establish fair playing field",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "nw2p9hbb",
+     "term": "National Commission to Review the Working of the Constitution",
+     "def": "2000 / Under the chairman ship of Justice M.N Venkatachaiah",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    },
+    {
+     "id": "ro9oamtm",
+     "term": "Inter State Council (Article 263)",
+     "def": "Janta Dal Gov on the recommendations of the Sarkaria Commission. PM as Chairman.",
+     "tags": [],
+     "type": "basic",
+     "options": [],
+     "answer": null,
+     "explanation": "",
+     "keywords": [],
+     "alternates": [],
+     "srs": {
+      "due": 0,
+      "stability": 0,
+      "difficulty": 5,
+      "reps": 0,
+      "lapses": 0
+     }
+    }
+   ]
+  },
+  {
    "id": "9h52x5x0",
    "title": "Parliament, Executive & State Institutions",
    "subject": "Imported",
