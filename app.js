@@ -25604,6 +25604,20 @@ ${c.def}
       onPatchCard(card.id, { term, def });
       setEditing(false);
     }, [card, onPatchCard]);
+    const [fullscreen, setFullscreen] = (0, import_react.useState)(() => !!document.fullscreenElement);
+    (0, import_react.useEffect)(() => {
+      const h = () => setFullscreen(!!document.fullscreenElement);
+      document.addEventListener("fullscreenchange", h);
+      return () => document.removeEventListener("fullscreenchange", h);
+    }, []);
+    const toggleFullscreen = (0, import_react.useCallback)(() => {
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+      } else {
+        document.documentElement.requestFullscreen().catch(() => {
+        });
+      }
+    }, []);
     (0, import_react.useEffect)(() => {
       const h = (e) => {
         if (e.key === " ") {
@@ -25658,6 +25672,7 @@ ${c.def}
           }
         ),
         /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "ss-side-actions", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn sm", onClick: toggleFullscreen, children: fullscreen ? "Exit fullscreen" : "Fullscreen" }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn sm", onClick: copyCard, children: copied ? "Copied" : "Copy" }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ss-btn sm", onClick: () => setEditing(true), children: "Edit" }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: `ss-btn sm${flagged.has(card.id) ? " hl" : ""}`, onClick: toggleFlag, children: flagged.has(card.id) ? "Flagged" : "Flag" }),

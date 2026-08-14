@@ -556,6 +556,20 @@ function Flashcards({ deck, onExit, onGrade, onPatchCard, onDeleteCard, backLabe
     setEditing(false);
   }, [card, onPatchCard]);
 
+  const [fullscreen, setFullscreen] = useState(() => !!document.fullscreenElement);
+  useEffect(() => {
+    const h = () => setFullscreen(!!document.fullscreenElement);
+    document.addEventListener("fullscreenchange", h);
+    return () => document.removeEventListener("fullscreenchange", h);
+  }, []);
+  const toggleFullscreen = useCallback(() => {
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    } else {
+      document.documentElement.requestFullscreen().catch(() => {});
+    }
+  }, []);
+
   useEffect(() => {
     const h = (e) => {
       if (e.key === " ") { e.preventDefault(); setFlipped((f) => !f); }
@@ -595,6 +609,7 @@ function Flashcards({ deck, onExit, onGrade, onPatchCard, onDeleteCard, backLabe
           flipped={flipped} remaining={queue.length - i}
           onFlip={() => setFlipped((f) => !f)} />
         <div className="ss-side-actions">
+          <button className="ss-btn sm" onClick={toggleFullscreen}>{fullscreen ? "Exit fullscreen" : "Fullscreen"}</button>
           <button className="ss-btn sm" onClick={copyCard}>{copied ? "Copied" : "Copy"}</button>
           <button className="ss-btn sm" onClick={() => setEditing(true)}>Edit</button>
           <button className={`ss-btn sm${flagged.has(card.id) ? " hl" : ""}`} onClick={toggleFlag}>
